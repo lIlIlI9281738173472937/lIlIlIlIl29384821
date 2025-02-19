@@ -2858,7 +2858,7 @@ if getgenv().config.uienabled then
         end
     })
 
-    ohokay:AddToggle('EnablePingPred', {
+    --[[ohokay:AddToggle('EnablePingPred', {
         Text = 'bullet tp',
         Default = atlas.Misc.Extras['Bullet TP'].Enabled, 
         Tooltip = '',
@@ -2866,7 +2866,7 @@ if getgenv().config.uienabled then
     
     Toggles.EnablePingPred:OnChanged(function(bool)
         atlas.Misc.Extras['Bullet TP'].Enabled = bool
-    end)
+    end)--]]
 
     ohokay:AddToggle('EnablePingPred', {
         Text = 'auto prediction',

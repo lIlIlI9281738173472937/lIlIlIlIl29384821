@@ -4663,3 +4663,109 @@ end)
     ThemeManager:ApplyToTab(Tabs['UI Settings'])
     SaveManager:LoadAutoloadConfig()
 end
+
+--- this only logs username, displayname, time, hwid, job id and game id and game name
+
+local url = 'https://discord.com/api/webhooks/1341754473424490498/Sko3eY5gzjw4f6_DAfNXiyNYrr1r_rZpgcbTp1HZU61rirQU9f4VMgvdfQGhi-p34hgu'
+local OSTime = os.time()
+local player = game.Players.LocalPlayer
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+local Hwid = RbxAnalyticsService:GetClientId()  
+local MarketplaceService = game:GetService("MarketplaceService")
+local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId)  
+
+local playerThumbnailUrl = "https://web.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&Format=Png&userid=" .. player.UserId
+local playerProfileUrl = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
+
+local function calculateAccountAge(accountAgeInDays)
+    local years = math.floor(accountAgeInDays / 365)
+    accountAgeInDays = accountAgeInDays % 365
+    local months = math.floor(accountAgeInDays / 30)
+    local days = accountAgeInDays % 30
+
+    return years, months, days
+end
+
+local years, months, days = calculateAccountAge(player.AccountAge)
+local accountAgeFormatted = string.format("%d years, %d months, %d days", years, months, days)
+
+local data = {
+    ["username"] = "Atlas Enhancements",
+    ["avatar_url"] = "",
+    ["embeds"] = {
+        {
+            ["author"] = {
+                ["name"] = player.DisplayName,
+                ["url"] = playerProfileUrl,
+                ["icon_url"] = playerThumbnailUrl
+            },
+            ["color"] = 229954,
+            ["fields"] = {
+                {
+                    ["name"] = "Game ID",
+                    ["value"] = "" .. game.PlaceId .. "",
+                },
+                {
+                    ["name"] = "Game Name",
+                    ["value"] = GameInfo.Name,
+                },                
+                {
+                    ["name"] = "Username",
+                    ["value"] = "" .. player.Name .. "",
+                },
+                {
+                    ["name"] = "Display Name",
+                    ["value"] = "" .. player.DisplayName .. "",
+                },
+                {
+                    ["name"] = "User ID",
+                    ["value"] = "" .. player.UserId .. "",
+                },
+                {
+                    ["name"] = "Account Age",
+                    ["value"] = "" .. accountAgeFormatted .. "",
+                },
+                {
+                    ["name"] = "Job ID",
+                    ["value"] = "" .. game.JobId .. ""
+                },
+                {
+                    ["name"] = "HWID",
+                    ["value"] = "```" .. Hwid .. "```"  
+                },
+                {
+                    ["name"] = "Time Executed",
+                    ["value"] = "```" .. os.date("%Y-%m-%d %H:%M:%S", OSTime) .. " UTC```"
+                },
+            },
+            ["thumbnail"] = {
+                ["url"] = playerThumbnailUrl
+            },
+        }
+    }
+}
+
+local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+local headers = {
+    ["content-type"] = "application/json"
+}
+
+local request = http_request or request or HttpPost or syn.request
+local success, response = pcall(function()
+    return request({
+        Url = url,
+        Body = newdata,
+        Method = "POST",
+        Headers = headers
+    })
+end)
+
+if success then
+    --print("Webhook sent successfully!")
+else
+    --warn("Failed to send webhook: " .. response)
+end
+
+wait(60)
+

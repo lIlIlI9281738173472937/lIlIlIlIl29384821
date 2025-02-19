@@ -2405,7 +2405,7 @@ repeat task.wait() until game:IsLoaded()
 UpdateCheck()
 
 if getgenv().config.uienabled then 
-    local title = 'atlas$$$'
+    local title = '             Atlas Public V2.01 ∣ discord.gg/SjE932Qugv'
 
     local Window = Library:CreateWindow({
         Title = title,

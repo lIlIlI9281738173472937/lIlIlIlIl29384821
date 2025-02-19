@@ -1,3 +1,9 @@
+game.StarterGui:SetCore("SendNotification", {
+Title = "discord.gg/SjE932Qugv",
+Text = "",
+Duration = 5,
+})
+
 getgenv().atlas = { 
     ['Target Aimbot'] = {
         ['Enabled'] = false,

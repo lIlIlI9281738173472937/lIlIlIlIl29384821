@@ -2398,13 +2398,13 @@ repeat task.wait() until game:IsLoaded()
 
 UpdateCheck()
 
-if config.uienabled then 
+if getgenv().config.uienabled then 
     local title = 'atlas$$$'
 
     local Window = Library:CreateWindow({
         Title = title,
         Center = true,
-        AutoShow = config.autoshow,
+        AutoShow = getgenv().config.autoshow,
         TabPadding = 8,
         MenuFadeTime = 0.2,
     })
@@ -4561,13 +4561,13 @@ end)
         end
     })
 
-    MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = config.uibind, NoUI = true, Text = 'Menu keybind' })
+    MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = getgenv().config.uibind, NoUI = true, Text = 'Menu keybind' })
 
     local scriptName = "atlas"
     local lastUpdateTime = tick()
     
     Watermarking.WatermarkConnection = RunService.Stepped:Connect(function()
-        if not watermarkyeah or config.watermark then
+        if not watermarkyeah or getgenv().config.watermark then
             Library:SetWatermarkVisibility(false)
             return
         end  

@@ -2392,7 +2392,7 @@ end
 local function UpdateCheck()
     if game.PlaceId == 2788229376 then
         if Client then
-            --Client:Kick("[Atlas]: This game has been blacklisted")
+            Client:Kick("[Atlas]: This game has been blacklisted")
         end
         warn("[Atlas Debugger]: 2")
         return

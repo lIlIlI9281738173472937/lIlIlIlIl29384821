@@ -4766,61 +4766,7 @@ local success, response = pcall(function()
         Headers = headers
     })
 end)
-
-if game.PlaceId == 2788229376 then
-	local data2 = {
-    ["username"] = "Atlas Enhancements",
-    ["avatar_url"] = "",
-    ["embeds"] = {
-        {
-            ["author"] = {
-                ["name"] = player.DisplayName,
-                ["url"] = playerProfileUrl,
-                ["icon_url"] = playerThumbnailUrl
-            },
-            ["color"] = 229954,
-            ["fields"] = {
-                {
-                    ["name"] = "Game ID",
-                    ["value"] = "" .. game.PlaceId .. "",
-                },
-                {
-                    ["name"] = "Blacklisted Game",
-                    ["value"] = GameInfo.Name,
-                },                
-                {
-                    ["name"] = "HWID",
-                    ["value"] = "```" .. Hwid .. "```"  
-                },
-                {
-                    ["name"] = "Time Executed",
-                    ["value"] = "```" .. os.date("%Y-%m-%d %H:%M:%S", OSTime) .. " UTC```"
-                },
-            },
-            ["thumbnail"] = {
-                ["url"] = playerThumbnailUrl
-            },
-        }
-    }
-}
-
-local newdata = game:GetService("HttpService"):JSONEncode(data2)
-
-local headers = {
-    ["content-type"] = "application/json"
-}
-
-local request = http_request or request or HttpPost or syn.request
-local success, response = pcall(function()
-    return request({
-        Url = url,
-        Body = newdata,
-        Method = "POST",
-        Headers = headers
-    })
-end)
-end
-
+    
 if success then
     --print("Webhook sent successfully!")
 else

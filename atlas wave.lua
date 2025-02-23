@@ -4,6 +4,7 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
+
 getgenv().config = {
     uienabled = true,
     uibind = "H",
@@ -28,12 +29,20 @@ getgenv().atlas = {
         ['View'] = false,
         ['Notify'] = false,
 		['EnableDrawings'] = {
-			['Tracer'] = false,
-			['Dot'] = false,
+			['Tracer'] = {
+                ['Enabled'] = false,
+                ['Visible'] = false,
+                ['Color'] = Color3.fromRGB(84, 101, 255),
+            },
+			['Dot'] = {
+                ['Enabled'] = false,
+                ['Visible'] = false,
+                ['Color'] = Color3.fromRGB(84, 101, 255),
+            },
             ['FOV'] = {
                 ['Enabled'] = false,
                 ['Visible'] = false,
-                ['Radius'] = 120,
+                ['Radius'] = 600,
                 ['Color'] = Color3.fromRGB(84, 101, 255),
             },
 		},
@@ -94,10 +103,10 @@ getgenv().atlas = {
             ['C-Sync'] = { 
                 ['Enabled'] = false,
                 ['Keybind'] = '',
-                ['Type'] = '', 
+                ['Type'] = 'Random', 
                 ['Visualize'] = {
                     ['Enabled'] = false,
-                    ['Type'] = 'dummy',
+                    ['Type'] = 'Dummy',
                     ['FillColor'] = Color3.fromRGB(84, 101, 255),
                     ['OutlineColor'] = Color3.fromRGB(255, 255, 255),
                 },
@@ -282,17 +291,17 @@ local SavesXd = {
     originalProperties = {},
     value000 = atlas['Target Aimbot'].Prediction,
     Dances = {
-        floss = 10714340543,
-        shakedabooty = 14548619594,
-        fancyfeet = 10714076981,
-        hyperdance = 10714369624,
-        fasthands = 10714100539,
-        backflip = 15693621070,
-        ["the zab"] = 129470135909814,
-        skibiditoilet = 134283166482394,
-        ["flex walk"] = 15505459811,
-        ["yung blud"] = 15609995579,
-        happy = 10714352626,
+        ["Floss"] = 10714340543,
+        ["Shake Da Booty"] = 14548619594,
+        ["Fancy Feet"] = 10714076981,
+        ["Hyper Dance"] = 10714369624,
+        ["Fast Hands"] = 10714100539,
+        ["Back Flip"] = 15693621070,
+        ["The Zab"] = 129470135909814,
+        ["Skibidi Toilet"] = 134283166482394,
+        ["Flex Walk"] = 15505459811,
+        ["Yung Blud"] = 15609995579,
+        ["Happy"] = 10714352626,
     },
     currentAnimation,
     currentAnimationID,
@@ -385,9 +394,6 @@ drawings.FOVCircle.Filled = false
 drawings.FOVCircle.Thickness = 1
 drawings.FOVCircle.Radius = 120
 drawings.FOVCircle.Color = Color3.fromRGB(84, 101, 255)
-
-drawings.LocalHL.FillColor = atlas['Target Aimbot'].Highlight.Color
-drawings.LocalHL.OutlineColor = atlas['Target Aimbot'].Highlight.Color
 
 drawings.CFrameDesyncDot.Visible = false
 drawings.CFrameDesyncDot.Filled = true
@@ -566,7 +572,7 @@ local function KnockedCheckedLOL()
                 TargetPlayer = nil
                 TargetL = nil
                 if atlas["Target Aimbot"].Checks.KO.Notify then 
-                    Library:Notify("Unlocked", 3)            
+                    Library:Notify("Unlocked Because Target Was Knocked", 3)            
                 end
             else 
                 return
@@ -584,7 +590,7 @@ local function KnockedCheckedLOL()
                     TargetPlayer = nil
                     TargetL = nil
                     if atlas["Target Aimbot"].Checks.KO.Notify then 
-                        Library:Notify("Unlocked", 3)            
+                        Library:Notify("Unlocked Because Target Was Knocked", 3)            
                     end
                 end
             end
@@ -699,19 +705,19 @@ RunService.Heartbeat:Connect(function()
 
         local screenPosition, onScreen = Camera:WorldToViewportPoint(predictedPosition)
 
-        if onScreen and aimSettings.EnableDrawings.Dot then
+        if onScreen and aimSettings.EnableDrawings.Dot.Enabled then
             drawings.TargetDot.Visible = true
             drawings.TargetDot.Position = Vector2.new(screenPosition.X, screenPosition.Y)
-            drawings.TargetDot.Color = Color3.fromRGB(84, 101, 255)
+            drawings.TargetDot.Color = aimSettings.EnableDrawings.Dot.Color
             drawings.TargetDot.Radius = 2
         else
             drawings.TargetDot.Visible = false
         end
 
-        if aimSettings.EnableDrawings.Tracer then
+        if aimSettings.EnableDrawings.Tracer.Enabled then
             local tracer = drawings.TargetTracer
             if onScreen then
-                tracer.Color = Color3.fromRGB(84, 101, 255)
+                tracer.Color = aimSettings.EnableDrawings.Tracer.Color
                 tracer.Transparency = 1
                 tracer.Thickness = 2
                 tracer.From = UserInputService:GetMouseLocation()
@@ -723,6 +729,10 @@ RunService.Heartbeat:Connect(function()
         else
             drawings.TargetTracer.Visible = false
         end
+
+        
+        drawings.LocalHL.FillColor = atlas['Target Aimbot'].Highlight.Color
+        drawings.LocalHL.OutlineColor = atlas['Target Aimbot'].Highlight.Color
 
         if aimSettings.Enabled and aimSettings.Highlight.Enabled then
             if drawings.LocalHL.Parent ~= character then
@@ -1064,12 +1074,7 @@ local function handleHitmarker(plr, char)
                         if math.floor(health) > 0 then
                             local hitPart = atlas['Target Aimbot'] and atlas['Target Aimbot'].AimPart or "Unknown"
                             if TargetPlayer and TargetPlayer.DisplayName then
-                                Notifications:Notification(
-                                    "Hit " .. TargetPlayer.DisplayName .. " in the " .. hitPart .. " for " .. math.floor(damage) .. " damage",
-                                    2,
-                                    Color3.new(1, 0, 0),
-                                    false
-                                )
+                                Library:Notify("Hit " .. TargetPlayer.DisplayName .. " in the " .. hitPart .. " for " .. math.floor(damage) .. " damage",2)
                             end
                         end
                     end
@@ -1295,7 +1300,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-local TARGET_LINE_UPDATE_INTERVAL = 0.1
 local LineColor = Color3.fromRGB(84, 101, 255)
 
 local TargetLine = Instance.new("Part")
@@ -1306,8 +1310,6 @@ TargetLine.Color = LineColor
 TargetLine.Material = Enum.Material.Neon
 TargetLine.CanCollide = false
 TargetLine.Transparency = 1
-
-local lastUpdate45 = tick()
 
 local function DrawLine(part, startPos, endPos)
     local distance = (startPos - endPos).Magnitude
@@ -1333,18 +1335,14 @@ local function updateTargetLine(character, mousePosition)
 end
 
 RunService.Heartbeat:Connect(function()
-    if tick() - lastUpdate45 >= TARGET_LINE_UPDATE_INTERVAL then
-        lastUpdate45 = tick() 
+    TargetLine.Color = LineColor 
+    if enableaimviewweta and TargetPlayer and TargetPlayer.Character then
+        local bodyEffects = TargetPlayer.Character:FindFirstChild("BodyEffects")
+        local mousePos = bodyEffects and bodyEffects:FindFirstChild("MousePos")
 
-        TargetLine.Color = LineColor 
-        if enableaimviewweta and TargetPlayer and TargetPlayer.Character then
-            local bodyEffects = TargetPlayer.Character:FindFirstChild("BodyEffects")
-            local mousePos = bodyEffects and bodyEffects:FindFirstChild("MousePos")
-
-            updateTargetLine(TargetPlayer.Character, mousePos)
-        else
-            TargetLine.Transparency = 1
-        end
+        updateTargetLine(TargetPlayer.Character, mousePos)
+    else
+        TargetLine.Transparency = 1
     end
 end)
 
@@ -1455,21 +1453,6 @@ for _, child in pairs(bodyClone:GetChildren()) do
     end
 end
 
-local previousVisualizeChamsState = visualizeChams.Enabled
-local previousTargetHighlightState = targetHighlight.Enabled
-
-RunService.RenderStepped:Connect(function()
-    if visualizeChams.Enabled ~= enablevisualizechams then
-        visualizeChams.Enabled = enablevisualizechams
-        previousVisualizeChamsState = enablevisualizechams
-    end
-    
-    if targetHighlight.Enabled ~= enabletargethighlight then
-        targetHighlight.Enabled = enabletargethighlight
-        previousTargetHighlightState = enabletargethighlight
-    end
-end)
-
 local Script = {
     SavedCFrame = nil,
 }
@@ -1539,7 +1522,7 @@ local function CframeDesyncHelloSkids()
     visualizeChams.OutlineColor = enabled['Visualize'].OutlineColor
 
     if enabled['Visualize'].Enabled then
-        if enabled['Visualize'].Type == 'dummy' then
+        if enabled['Visualize'].Type == 'Dummy' then
             bodyClone.Parent = workspace
             local visualRoot = bodyClone:FindFirstChild("HumanoidRootPart")
             if visualRoot then
@@ -1552,7 +1535,7 @@ local function CframeDesyncHelloSkids()
             bodyClone.Parent = nil
         end
 
-        if enabled['Visualize'].Type == 'dot' then
+        if enabled['Visualize'].Type == 'Dot' then
             local desyncedPos = Camera:WorldToViewportPoint(impostorDummyCFrame.Position)
             drawings.CFrameDesyncDot.Visible = true
             drawings.CFrameDesyncDot.Position = Vector2.new(desyncedPos.X, desyncedPos.Y)
@@ -1560,7 +1543,7 @@ local function CframeDesyncHelloSkids()
             drawings.CFrameDesyncDot.Visible = false
         end
 
-        if enabled['Visualize'].Type == 'line' then
+        if enabled['Visualize'].Type == 'Line' then
             local desyncedPos = Camera:WorldToViewportPoint(impostorDummyCFrame.Position)
             local hrpPos = Camera:WorldToViewportPoint(humanoidRootPart.Position)
             drawings.CFrameDesyncTracer.Visible = true
@@ -1613,71 +1596,49 @@ originalCFrame = hookmetamethod(game, "__index", newcclosure(function(self, key)
 end))
 
 local originalNewIndex
-originalNewIndex = hookmetamethod(game, "__newindex", newcclosure(function(object, property, value)
+originalNewIndex = hookmetamethod(game, "__newindex", function(object, property, value)
     local callingScript = getcallingscript()
+    local Camera = workspace.CurrentCamera 
 
-    if callingScript and callingScript.Name == "Framework" and object == Camera and property == "CFrame" and atlas.Misc['No Recoil'] then
+    if callingScript and callingScript.Name == "Framework" and object == Camera and property == "CFrame" and atlas and atlas.Misc and atlas.Misc['No Recoil'] then
         return
     end
 
     return originalNewIndex(object, property, value)
-end))
+end)
 
 local grmt = getrawmetatable(game)
 local originalIndex = grmt.__index
 setreadonly(grmt, false)
 
 grmt.__index = newcclosure(function(self, v)
-    if atlas['Target Aimbot'] and atlas['Target Aimbot'].Enabled and Mouse then
+    local targetAimbot = atlas['Target Aimbot']
+    
+    if targetAimbot and targetAimbot.Enabled and Mouse then
         local propertyName = tostring(v)
-
+        
         if propertyName == "Hit" or propertyName == "Target" then
-                local aimPart = atlas['Target Aimbot'].AimPart
-                local aimPrediction = atlas['Target Aimbot'].Prediction
-                local target = TargetPlayer
+            local aimPart = targetAimbot.AimPart
+            local aimPrediction = targetAimbot.Prediction
+            local target = TargetPlayer
 
-                if target and target.Character then
-                    local rootPart = target.Character:FindFirstChild("HumanoidRootPart")
-                    local aimPartObject = target.Character:FindFirstChild(aimPart)
-                    local humanoid = target.Character:FindFirstChildOfClass("Humanoid")
-
-                    if rootPart and humanoid and aimPartObject and aimPartObject:IsA("BasePart") then
-                        local velocity = rootPart.Velocity
-                        local assemblyVelocity = rootPart.AssemblyLinearVelocity
-                        
-                        local movingByCFrame = (velocity.Magnitude < 2 and assemblyVelocity.Magnitude > 50)
-
-                        local isFlying = humanoid:GetState() == Enum.HumanoidStateType.Physics or humanoid:GetState() == Enum.HumanoidStateType.Freefall
-
-                        local adjustedPrediction = aimPrediction
-                        if movingByCFrame or isFlying then
-                            adjustedPrediction = aimPrediction * 0.179472
-                        end
-                        
-                        local predictedPosition = aimPartObject.CFrame + (aimPartObject.AssemblyLinearVelocity * adjustedPrediction)
-                        
-                        if propertyName == "Hit" then
-                            return predictedPosition
-                        end
+            if target and target.Character then
+                local aimPartObject = target.Character:FindFirstChild(aimPart)
+                
+                if aimPartObject and aimPartObject:IsA("BasePart") then
+                    local predictedPosition = aimPartObject.CFrame + (aimPartObject.AssemblyLinearVelocity * aimPrediction)
+                    if propertyName == "Hit" then
+                        return predictedPosition
                     end
                 end
             end
         end
+    end
 
     return originalIndex(self, v)
 end)
 
 setreadonly(grmt, true)
-
---[[local Old 
-Old = hookmetamethod(game,"__index",function(self, key)
-    if self:IsA("Mouse") and key == "Hit" then
-        if TargetPlayer ~= nil and atlas['Target Aimbot'].Enabled then
-            return TargetPlayer.Character[atlas['Target Aimbot'].AimPart].CFrame + (TargetPlayer.Character[atlas['Target Aimbot'].AimPart].Velocity *atlas['Target Aimbot'].Prediction)
-        end
-    end
-    return Old(self, key)
-end)--]]
 
 function TeleportBuy(Target)
     if not Target or Target == "" then
@@ -1977,11 +1938,9 @@ local function AutoBuyArmor()
                 local OldPosition = Character.HumanoidRootPart.CFrame
 
                 local armorShop = workspace:FindFirstChild("Ignored") and workspace.Ignored:FindFirstChild("Shop")
-                local armor2Shop = game.PlaceId == 114911158915197 and workspace:FindFirstChild("Index") and workspace.Index.MAP:FindFirstChild("Shopping")
 
                 for _, armorName in ipairs(ArmorTable) do
                     local armorItem = armorShop and armorShop:FindFirstChild(armorName)
-                    local armor2Item = armor2Shop and armor2Shop:FindFirstChild(armorName)
 
                     local function tryBuyArmor(item)
                         if item and item:FindFirstChild("Head") and item:FindFirstChild("ClickDetector") then
@@ -1994,9 +1953,8 @@ local function AutoBuyArmor()
                     end
 
                     tryBuyArmor(armorItem)
-                    tryBuyArmor(armor2Item)
 
-                    if armorItem or armor2Item then
+                    if armorItem then
                         break
                     end
                 end
@@ -2014,42 +1972,52 @@ Client.CharacterAdded:Connect(function()
     AutoBuyArmor()
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.Stepped:Connect(function()
     local movementConfig = atlas.Misc['Movement Speed'].CFrame
     if movementConfig.Enabled then
         local character = Client.Character
         local humanoid = character:FindFirstChildOfClass("Humanoid")
         if humanoid and humanoid.MoveDirection.Magnitude > 0 then
-            character:TranslateBy(humanoid.MoveDirection.Unit * (movementConfig.Speed))
+            local speed = movementConfig.Speed + math.random(-1, 1) * 0.5
+            character:TranslateBy(humanoid.MoveDirection.Unit * (speed))
         end
     end
 end)
 
-RunService.Stepped:Connect(function()
-    if atlas.Misc.Fly.Enabled then
-        spawn(function()
-            pcall(function()
-                local velocity = Vector3.new(0, 1, 0)
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                    velocity = velocity + (Camera.CoordinateFrame.lookVector * atlas.Misc.Fly.Speed)
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                    velocity = velocity + (Camera.CoordinateFrame.rightVector * -atlas.Misc.Fly.Speed)
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                    velocity = velocity + (Camera.CoordinateFrame.lookVector * -atlas.Misc.Fly.Speed)
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                    velocity = velocity + (Camera.CoordinateFrame.rightVector * atlas.Misc.Fly.Speed)
-                end
-                Client.Character.HumanoidRootPart.Velocity = velocity
-                Client.Character.Humanoid:ChangeState("Freefall")
-            end)
-        end)
-    elseif not Client == nil then
-        Client.Character.Humanoid:ChangeState("Landing")
+RunService.RenderStepped:Connect(function()
+    local movementConfig = atlas.Misc.Fly
+    if movementConfig.Enabled and Client and Client.Character then
+        local character = Client.Character
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        
+        if humanoid then
+            local velocity = Vector3.new(0, 1, 0)
+            local lookVector = Camera.CFrame.LookVector
+            local rightVector = Camera.CFrame.RightVector
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                velocity = velocity + (lookVector * movementConfig.Speed)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                velocity = velocity + (rightVector * -movementConfig.Speed)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                velocity = velocity + (lookVector * -movementConfig.Speed)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                velocity = velocity + (rightVector * movementConfig.Speed)
+            end
+            
+            character.HumanoidRootPart.Velocity = velocity
+            humanoid:ChangeState("Freefall")
+        end
+    elseif Client and Client.Character then
+        local humanoid = Client.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState("Landing")
+        end
     end
-end) 
+end)
 
 function reset_wrld()
     game.Lighting.ClockTime = Assets.Stored.ClockTime
@@ -2270,7 +2238,7 @@ GetPrediction = function()
 end
 
 RunService.Heartbeat:Connect(function()
-    if atlas['Target Aimbot'].Enabled then 
+    if atlas['Target Aimbot'].Enabled and atlas['Target Aimbot']["Auto Prediction"].Enabled then 
         atlas['Target Aimbot'].Prediction = GetPrediction()
     end
 end)
@@ -2377,6 +2345,7 @@ UpdateCheck()
 if config.uienabled then 
     if uiloaded then 
         return
+        Library:Notify("[Atlas]: UI Already Loaded", 3)
     else
         getgenv().uiloaded = true
     local title = '             Atlas Public V2.01 ∣ discord.gg/SjE932Qugv'
@@ -2410,31 +2379,33 @@ if config.uienabled then
     local buymenowplss = Tabs.nenene:AddRightTabbox()
     local lookatme = Tabs.hmmm:AddRightTabbox()
     local akhdskjd = Tabs.nenene:AddLeftTabbox()
-    local fakeanimas = TabBox17:AddTab('emote spam')
-    local ingamean = TabBox17:AddTab('animations')
-    local movebruh1 = movebruh:AddTab('movement')
-    local antiautolo = antiatuololxd:AddTab('disablers')
-    local othermods = antiatuololxd:AddTab('characters')
-    local antiaiminglol = antiatuololxd:AddTab('anti-aim')
-    local ohokay = p:AddTab('rage')
-    local strafs = p:AddTab('strafe')
-    local scriptchecks = p:AddTab('checks')
-    local visualsui = h:AddTab('visuals')
-    local visualsui2 = h:AddTab('fov')
-    local playersaretheopps = ightbruhthesetheopps:AddTab('players')
-    local extrastuff = akhdskjd:AddTab('auto buy')
-    local buyingtheseguns = buymenowplss:AddTab('buys')
-    local crosshandle = helloworldstfu:AddTab('crosshair')
-    local selfextras = lookatme:AddTab('on hit')
-    local selfgunned = lookatme:AddTab('gun')
-    local worldlights = lookatme:AddTab('world')
-    local velocityspoofer = urrr:AddTab('velocity spoofer')
-    local CframeDesyncXD = urrr:AddTab('cframe desync')
+    local fakeanimas = TabBox17:AddTab('Emote Spam')
+    local ingamean = TabBox17:AddTab('Animations')
+    local movebruh1 = movebruh:AddTab('Movement')
+    local antiautolo = antiatuololxd:AddTab('Disablers')
+    local othermods = antiatuololxd:AddTab('Characters')
+    local antiaiminglol = antiatuololxd:AddTab('Anti-Aim')
+    local ohokay = p:AddTab('Rage')
+    local strafs = p:AddTab('Strafe')
+    local morestuff = p:AddTab('Extras')
+    local scriptchecks = p:AddTab('Checks')
+    local visualsui = h:AddTab('Visuals')
+    local visualsui2 = h:AddTab('FOV')
+    local colorconfigs = h:AddTab('Color Config')
+    local playersaretheopps = ightbruhthesetheopps:AddTab('Players')
+    local extrastuff = akhdskjd:AddTab('Auto Buy')
+    local buyingtheseguns = buymenowplss:AddTab('Buys')
+    local crosshandle = helloworldstfu:AddTab('Crosshair')
+    local selfextras = lookatme:AddTab('On Hit')
+    local selfgunned = lookatme:AddTab('Gun')
+    local worldlights = lookatme:AddTab('World')
+    local velocityspoofer = urrr:AddTab('Velocity Spoofer')
+    local CframeDesyncXD = urrr:AddTab('CFrame Desync')
     local SelectedTarget = nil
-    local TargetLabel = playersaretheopps:AddLabel('selected player: none')
-    
+    local TargetLabel = playersaretheopps:AddLabel('Selected Player: None')
+
     local function UpdateLabel(player)
-        local LabelText = 'selected player: ' .. (player and player.Name or 'none')
+        local LabelText = 'Selected Player: ' .. (player and player.Name or 'None')
         TargetLabel:SetText(LabelText)
     end
 
@@ -2442,7 +2413,7 @@ if config.uienabled then
         Default = nil,
         Numeric = false, 
         Finished = false, 
-        Text = 'find a player',
+        Text = 'Search for Player',
         Tooltip = '', 
         Placeholder = '', 
         Callback = function(searchQuery)
@@ -2474,7 +2445,7 @@ if config.uienabled then
     })
 
     playersaretheopps:AddButton({
-        Text = 'teleport to',
+        Text = 'Teleport To',
         Func = function()
             if SelectedTarget and SelectedTarget.Character then
                 local targetHRP = SelectedTarget.Character:FindFirstChild("HumanoidRootPart")
@@ -2491,27 +2462,27 @@ if config.uienabled then
     })
     
     visualsui:AddToggle('dotenable', {
-        Text = 'dot',
-        Default = atlas['Target Aimbot'].EnableDrawings.Dot, 
+        Text = 'Dot',
+        Default = atlas['Target Aimbot'].EnableDrawings.Dot.Enabled, 
         Tooltip = '',
     })
     
     Toggles.dotenable:OnChanged(function(bool)
-        atlas['Target Aimbot'].EnableDrawings.Dot = bool
+        atlas['Target Aimbot'].EnableDrawings.Dot.Enabled = bool
     end)
 
     visualsui:AddToggle('tracerco', {
-        Text = 'tracer',
-        Default = atlas['Target Aimbot'].EnableDrawings.Tracer, 
+        Text = 'Tracer',
+        Default = atlas['Target Aimbot'].EnableDrawings.Tracer.Enabled, 
         Tooltip = '',
     })
     
     Toggles.tracerco:OnChanged(function(bool)
-        atlas['Target Aimbot'].EnableDrawings.Tracer = bool
+        atlas['Target Aimbot'].EnableDrawings.Tracer.Enabled = bool
     end)
 
     visualsui:AddToggle('HighlightT', {
-        Text = 'highlight',
+        Text = 'Highlight',
         Default = atlas['Target Aimbot'].Highlight.Enabled, 
         Tooltip = '',
     })
@@ -2520,23 +2491,26 @@ if config.uienabled then
         atlas['Target Aimbot'].Highlight.Enabled = bool
     end)
 
-    local HightlightBox = visualsui:AddDependencyBox()
-
-    HightlightBox:SetupDependencies({
-        { Toggles.HighlightT, true } 
-    })
-
-    HightlightBox:AddLabel('highlight color'):AddColorPicker('ColorPicker', {
+    colorconfigs:AddLabel('Highlight Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(84, 101, 255),
-        Title = 'Color', 
+        Title = 'Highlight Color', 
     })
     
     Options.ColorPicker:OnChanged(function(bool)
         atlas['Target Aimbot'].Highlight.Color = bool
     end)
 
+    colorconfigs:AddLabel('Tracer Color'):AddColorPicker('ColorPicker', {
+        Default = Color3.fromRGB(84, 101, 255),
+        Title = 'Tracer Color', 
+    })
+    
+    Options.ColorPicker:OnChanged(function(bool)
+        atlas['Target Aimbot'].EnableDrawings.Tracer.Color = bool
+    end)
+
     visualsui2:AddToggle('fovicr', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas['Target Aimbot'].EnableDrawings.FOV.Enabled, 
         Tooltip = '',
     })
@@ -2545,14 +2519,8 @@ if config.uienabled then
         atlas['Target Aimbot'].EnableDrawings.FOV.Enabled = bool
     end)
 
-    local FOVBox = visualsui2:AddDependencyBox()
-
-    FOVBox:SetupDependencies({
-        { Toggles.fovicr, true } 
-    })
-
-    FOVBox:AddToggle('fovicr', {
-        Text = 'visible',
+    visualsui2:AddToggle('fovicr', {
+        Text = 'Visible',
         Default = atlas['Target Aimbot'].EnableDrawings.FOV.Visible, 
         Tooltip = '',
     })
@@ -2561,8 +2529,8 @@ if config.uienabled then
         atlas['Target Aimbot'].EnableDrawings.FOV.Visible = bool
     end)
 
-    FOVBox:AddSlider('OffsetXSlider', {
-        Text = 'radius',
+    visualsui2:AddSlider('OffsetXSlider', {
+        Text = 'Radius',
         Default = atlas['Target Aimbot'].EnableDrawings.FOV.Radius,
         Min = 0,
         Max = 600,
@@ -2573,19 +2541,17 @@ if config.uienabled then
         end
     })
 
-    FOVBox:AddLabel('fov color'):AddColorPicker('ColorPicker', {
+    colorconfigs:AddLabel('FOV Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(84, 101, 255),
-        Title = 'Color', 
+        Title = 'FOV Color', 
     })
     
     Options.ColorPicker:OnChanged(function(bool)
         atlas['Target Aimbot'].EnableDrawings.FOV.Color = bool
     end)
 
-
-    
     antiautolo:AddToggle('fov1', {
-        Text = 'anti slow',
+        Text = 'Slow',
         Default = atlas.Misc['Anti Slow'], 
         Tooltip = '',
     })
@@ -2595,7 +2561,7 @@ if config.uienabled then
     end)
     
     antiautolo:AddToggle('fov1', {
-        Text = 'anti jump cooldown',
+        Text = 'Jump Cooldown',
         Default = atlas.Misc['No Jumpcool Down'], 
         Tooltip = '',
     })
@@ -2613,7 +2579,7 @@ if config.uienabled then
     end
 
     antiautolo:AddToggle('fov1', {
-        Text = 'anti sit',
+        Text = 'Seats',
         Default = false, 
         Tooltip = '',
     })
@@ -2623,7 +2589,7 @@ if config.uienabled then
     end)
 
     antiautolo:AddToggle('anisfs', {
-        Text = 'anti void kill',
+        Text = 'Void Kill',
         Default = false, 
         Tooltip = '',
     })
@@ -2645,7 +2611,7 @@ if config.uienabled then
     end)
 
     antiautolo:AddToggle('disabled', {
-        Text = 'disable shoot sounds',
+        Text = 'Shoot Sounds',
         Default = atlas.Misc.Extras.DisableShootSounds, 
         Tooltip = '',
     })
@@ -2655,7 +2621,7 @@ if config.uienabled then
     end)
 
     antiautolo:AddToggle('camerafov', {
-        Text = 'camera fov',
+        Text = 'Camera FOV',
         Default = false, 
         Tooltip = '',
     })
@@ -2663,17 +2629,11 @@ if config.uienabled then
     Toggles.camerafov:OnChanged(function(bool)
         getgenv().togglemyfovXDD = bool 
     end)
-
-    local CameraFOVLOL = antiautolo:AddDependencyBox()
-
-    CameraFOVLOL:SetupDependencies({
-        { Toggles.camerafov, true } 
-    })
     
     getgenv().changemyfovnowXD = 70
     
-    CameraFOVLOL:AddSlider('OffsetXSlider', {
-        Text = 'camera fov',
+    antiautolo:AddSlider('OffsetXSlider', {
+        Text = 'FOV',
         Default = getgenv().changemyfovnowXD,
         Min = 70,
         Max = 120,
@@ -2685,7 +2645,7 @@ if config.uienabled then
     })
 
     strafs:AddToggle('toggles', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas['Target Aimbot']['Target Strafe'].Enabled, 
         Tooltip = '',
     })
@@ -2694,33 +2654,19 @@ if config.uienabled then
         atlas['Target Aimbot']['Target Strafe'].Enabled = bool
     end)
 
-    local strafetoggle = strafs:AddDependencyBox()
-
-    strafetoggle:SetupDependencies({
-        { Toggles.toggles, true } 
-    })
-
-    strafetoggle:AddDropdown('MyDropdown', {
-        Values = {"normal", "sky","random"},
+    strafs:AddDropdown('MyDropdown', {
+        Values = {"Normal", "Sky","Random"},
         Default = 1,
         Multi = false, 
         Text = 'Mode',
         Tooltip = '',
         Callback = function(bool)
             atlas['Target Aimbot']['Target Strafe'].Mode = bool
-
-            if bool == "normal" then 
-                atlas['Target Aimbot']['Target Strafe'].Mode = "Normal"
-            elseif bool == "sky" then 
-                atlas['Target Aimbot']['Target Strafe'].Mode = "Sky"
-            elseif bool == "random" then 
-                atlas['Target Aimbot']['Target Strafe'].Mode = "Random"
-            end
         end
     })
         
-    strafetoggle:AddSlider('OffsetXSlider', {
-        Text = 'speed',
+    strafs:AddSlider('OffsetXSlider', {
+        Text = 'Speed',
         Default = atlas['Target Aimbot']['Target Strafe'].Speed,
         Min = 0,
         Max = 100,
@@ -2731,8 +2677,8 @@ if config.uienabled then
         end
     })
     
-    strafetoggle:AddSlider('OffsetXSlider', {
-        Text = 'distance',
+    strafs:AddSlider('OffsetXSlider', {
+        Text = 'Distance',
         Default = atlas['Target Aimbot']['Target Strafe'].Distance,
         Min = 0,
         Max = 100,
@@ -2743,8 +2689,8 @@ if config.uienabled then
         end
     })
     
-    strafetoggle:AddSlider('OffsetXSlider', {
-        Text = 'height',
+    strafs:AddSlider('OffsetXSlider', {
+        Text = 'Height',
         Default = atlas['Target Aimbot']['Target Strafe'].Height,
         Min = 0,
         Max = 100,
@@ -2755,8 +2701,8 @@ if config.uienabled then
         end
     })
 
-    strafetoggle:AddSlider('OffsetXSlider', {
-        Text = 'randomized amount',
+    strafs:AddSlider('OffsetXSlider', {
+        Text = 'Randomized Amount',
         Default = atlas['Target Aimbot']['Target Strafe'].RandomizeAmount,
         Min = 0,
         Max = 200,
@@ -2767,8 +2713,8 @@ if config.uienabled then
         end
     })
 
-    strafetoggle:AddSlider('OffsetXSlider', {
-        Text = 'sky distance',
+    strafs:AddSlider('OffsetXSlider', {
+        Text = 'Sky Distance',
         Default = atlas['Target Aimbot']['Target Strafe']['Sky Distance'],
         Min = -50,
         Max = 50,
@@ -2780,7 +2726,7 @@ if config.uienabled then
     })
 
     ohokay:AddToggle('AimbotEnabledTggle', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas['Target Aimbot'].Enabled, 
         Tooltip = '',
     })
@@ -2838,14 +2784,8 @@ if config.uienabled then
         end
     end) 
 
-    local methotous = ohokay:AddDependencyBox()
-
-    methotous:SetupDependencies({
-        { Toggles.AimbotEnabledTggle, true } 
-    })
-
-    ohokay:AddToggle('usecamera', {
-        Text = 'use camera',
+    morestuff:AddToggle('usecamera', {
+        Text = 'Use Camera',
         Default = atlas['Target Aimbot']['Use Camera'].Enabled, 
         Tooltip = '',
     })
@@ -2854,19 +2794,25 @@ if config.uienabled then
         atlas['Target Aimbot']['Use Camera'].Enabled = bool
     end)
 
-    local Cameraffings = ohokay:AddDependencyBox()
-
-    Cameraffings:SetupDependencies({
-        { Toggles.usecamera, true } 
-    })
-
-    Cameraffings:AddSlider('predictions', {
-        Text = 'smoothness',
+    morestuff:AddSlider('predictions', {
+        Text = 'Smoothness',
         Default = atlas['Target Aimbot']['Use Camera'].Smoothness,
         Min = 0,
         Max = 1,
         Rounding = 2,
         Compact = true,
+        Callback = function(bool)
+            atlas['Target Aimbot']['Use Camera'].Smoothness = bool
+        end
+    })
+
+    morestuff:AddInput('smoos', {
+        Default = atlas['Target Aimbot']['Use Camera'].Smoothness,
+        Numeric = true, 
+        Finished = false, 
+        Text = 'Smoothness',
+        Tooltip = '', 
+        Placeholder = '', 
         Callback = function(bool)
             atlas['Target Aimbot']['Use Camera'].Smoothness = bool
         end
@@ -2883,7 +2829,7 @@ if config.uienabled then
     end)--]]
 
     ohokay:AddToggle('EnablePingPred', {
-        Text = 'auto prediction',
+        Text = 'Auto Prediction',
         Default = atlas['Target Aimbot']['Auto Prediction'].Enabled, 
         Tooltip = '',
     })
@@ -2892,33 +2838,19 @@ if config.uienabled then
         atlas['Target Aimbot']['Auto Prediction'].Enabled = bool
     end)
 
-    local enaeauo = ohokay:AddDependencyBox()
-
-    enaeauo:SetupDependencies({
-        { Toggles.EnablePingPred, true } 
-    })
-
-    enaeauo:AddDropdown('MyDropdown', {
-        Values = {"default", "old","v2"}, 
+    ohokay:AddDropdown('MyDropdown', {
+        Values = {"Default", "Old","V2"}, 
         Default = atlas['Target Aimbot']['Auto Prediction'].Mode,
         Multi = false, 
-        Text = 'method',
+        Text = 'Auto Prediction Method',
         Tooltip = '',
         Callback = function(bool)
             atlas['Target Aimbot']['Auto Prediction'].Mode = bool
-
-            if bool == "default" then
-                atlas['Target Aimbot']['Auto Prediction'].Mode = "Default"
-            elseif bool == "old" then
-                atlas['Target Aimbot']['Auto Prediction'].Mode = "Old"
-            elseif bool == "v2" then 
-                atlas['Target Aimbot']['Auto Prediction'].Mode = "V2"
-            end
         end
     })
 
     ohokay:AddToggle('showcoloraims', {
-        Text = 'aimview target',
+        Text = 'Aim View',
         Default = false, 
         Tooltip = '',
     })
@@ -2926,16 +2858,9 @@ if config.uienabled then
         enableaimviewweta = bool
     end)
 
-    local showclo = ohokay:AddDependencyBox()
-
-    showclo:SetupDependencies({
-        { Toggles.showcoloraims, true } 
-    })
-
-
-    showclo:AddLabel('color'):AddColorPicker('ColorPicker', {
+    colorconfigs:AddLabel('Aim View Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(84, 101, 255),
-        Title = 'Color', 
+        Title = 'Aim View Color', 
     })
     
     Options.ColorPicker:OnChanged(function(bool)
@@ -2943,7 +2868,7 @@ if config.uienabled then
     end)
 
     scriptchecks:AddToggle('EnablePingPred', {
-        Text = 'visible',
+        Text = 'Visible',
         Default = atlas['Target Aimbot'].Checks.Visible, 
         Tooltip = '',
     })
@@ -2953,7 +2878,7 @@ if config.uienabled then
     end)
 
     scriptchecks:AddToggle('enabeko', {
-        Text = 'knocked',
+        Text = 'Knocked',
         Default = atlas['Target Aimbot'].Checks.KO.Enabled, 
         Tooltip = '',
     })
@@ -2962,31 +2887,19 @@ if config.uienabled then
         atlas['Target Aimbot'].Checks.KO.Enabled = bool
     end)
 
-    local enabelol = scriptchecks:AddDependencyBox()
-
-    enabelol:SetupDependencies({
-        { Toggles.enabeko, true } 
-    })
-
-    enabelol:AddDropdown('MyDropdown', {
-        Values = {"on health", "on knocked"}, 
-        Default = 3,
+    scriptchecks:AddDropdown('MyDropdown', {
+        Values = {"On Health", "On Knocked"}, 
+        Default = 1,
         Multi = false, 
-        Text = 'method',
+        Text = 'Knocked Method',
         Tooltip = '',
         Callback = function(bool)
             atlas['Target Aimbot'].Checks.KO.Method = bool
-
-            if bool == "on health" then
-                atlas['Target Aimbot'].Checks.KO.Method = "On Health"
-            elseif bool == "on knocked" then
-                atlas['Target Aimbot'].Checks.KO.Method = "On Knocked"
-            end
         end
     })
 
-    enabelol:AddToggle('enabeko', {
-        Text = 'notify',
+    scriptchecks:AddToggle('enabeko', {
+        Text = 'Notify On Knocked',
         Default = atlas['Target Aimbot'].Checks.KO.Notify, 
         Tooltip = '',
     })
@@ -2996,7 +2909,7 @@ if config.uienabled then
     end)
     
     scriptchecks:AddToggle('EnablePingPred', {
-        Text = 'grabbed',
+        Text = 'Grabbed',
         Default = atlas['Target Aimbot'].Checks.Grabbed, 
         Tooltip = '',
     })
@@ -3006,7 +2919,7 @@ if config.uienabled then
     end)
 
     ohokay:AddToggle('fddfdfsdsd', {
-        Text = 'auto select',
+        Text = 'Auto Select',
         Default = false, 
         Tooltip = '',
     })
@@ -3015,14 +2928,8 @@ if config.uienabled then
         atlas['Target Aimbot']['Auto Select'].Enabled = bool
     end)
 
-    local autoselectbox = ohokay:AddDependencyBox()
-
-    autoselectbox:SetupDependencies({
-        { Toggles.fddfdfsdsd, true } 
-    })
-
-    autoselectbox:AddSlider('predictions', {
-        Text = 'delay',
+    ohokay:AddSlider('predictions', {
+        Text = 'Auto Select Delay',
         Default = atlas['Target Aimbot']['Auto Select'].Delay,
         Min = 0,
         Max = 2,
@@ -3034,7 +2941,7 @@ if config.uienabled then
     })
 
     ohokay:AddToggle('ResolverXDDDD', {
-        Text = 'resolver',
+        Text = 'Resolver',
         Default = atlas['Target Aimbot'].Resolver.Enabled, 
         Tooltip = '',
     })
@@ -3063,14 +2970,8 @@ if config.uienabled then
         end
     end)   
 
-    local reslves = ohokay:AddDependencyBox()
-
-    reslves:SetupDependencies({
-        { Toggles.ResolverXDDDD, true } 
-    })
-    
-    reslves:AddToggle('autoprediction', {
-        Text = 'notify on resolver',
+    ohokay:AddToggle('autoprediction', {
+        Text = 'Notify On Resolver',
         Default = atlas['Target Aimbot'].Resolver.Notify, 
         Tooltip = '',
     })
@@ -3080,7 +2981,7 @@ if config.uienabled then
     end)
     
     ohokay:AddToggle('targetaimbot', {
-        Text = 'notify',
+        Text = 'Notify On Locked / Unlocked',
         Default = atlas['Target Aimbot'].Notify, 
         Tooltip = '',
     })
@@ -3090,7 +2991,7 @@ if config.uienabled then
     end)
     
     ohokay:AddToggle('strafeenable', {
-        Text = 'spectate',
+        Text = 'Spectate',
         Default = atlas['Target Aimbot'].View, 
         Tooltip = '',
     })
@@ -3099,23 +3000,11 @@ if config.uienabled then
         atlas['Target Aimbot'].View = bool
     end)
     
-    ohokay:AddToggle('aaaa', {
-        Text = 'prediction textbox',
-        Default = false, 
-        Tooltip = '',
-    })
-   
-    local PredictionType = ohokay:AddDependencyBox()
-
-    PredictionType:SetupDependencies({
-        { Toggles.aaaa, true } 
-    })
-
-    PredictionType:AddInput('UpdateThisPrediction', {
+    ohokay:AddInput('UpdateThisPrediction', {
         Default = atlas['Target Aimbot'].Prediction,
         Numeric = true, 
         Finished = false, 
-        Text = 'prediction',
+        Text = 'Prediction',
         Tooltip = '', 
         Placeholder = '', 
     })
@@ -3124,56 +3013,32 @@ if config.uienabled then
         atlas['Target Aimbot'].Prediction = Options.UpdateThisPrediction.Value
     end)
 
-    ohokay:AddToggle('aa222aa', {
-        Text = 'prediction slider',
-        Default = false, 
-        Tooltip = '',
-    })
-
-    local PredictaionType = ohokay:AddDependencyBox()
-
-    PredictaionType:SetupDependencies({
-        { Toggles.aa222aa, true } 
-    })
-
-    PredictaionType:AddSlider('predictions', {
-        Text = 'prediction',
+    ohokay:AddSlider('predictions', {
+        Text = 'Prediction',
         Default = atlas['Target Aimbot'].Prediction,
         Min = 0,
         Max = 2,
-        Rounding = 4,
+        Rounding = 3,
         Compact = true,
-        Callback = function(bool)
-        end
     })
 
     Options.predictions:OnChanged(function()
         atlas['Target Aimbot'].Prediction = Options.predictions.Value
     end)
 
-    methotous:AddDropdown('MyDropdown', {
-        Values = {"head", "uppertorso", "humanoidrootpart", "lowertorso"}, 
-        Default = 3,
+    ohokay:AddDropdown('MyDropdown', {
+        Values = {"Head", "UpperTorso", "HumanoidRootPart", "LowerTorso"}, 
+        Default = atlas['Target Aimbot'].AimPart,
         Multi = false, 
         Text = 'AimPart',
         Tooltip = '',
         Callback = function(bool)
             atlas['Target Aimbot'].AimPart = bool
-
-            if bool == "head" then
-                atlas['Target Aimbot'].AimPart = "Head"
-            elseif bool == "uppertorso" then
-                atlas['Target Aimbot'].AimPart = "UpperTorso"
-            elseif bool == "humanoidrootpart" then
-                atlas['Target Aimbot'].AimPart = "HumanoidRootPart"
-            elseif bool == "lowertorso" then
-                atlas['Target Aimbot'].AimPart = "LowerTorso"
-            end
         end
     })
     
     movebruh1:AddToggle('FlySpeed', {
-        Text = 'fly',
+        Text = 'Fly',
         Default = atlas.Misc.Fly.Enabled, 
         Tooltip = '',
     })
@@ -3181,7 +3046,7 @@ if config.uienabled then
     Toggles.FlySpeed:OnChanged(function(bool)
         atlas.Misc.Fly.Enabled = bool
     end)
-    
+
     Toggles.FlySpeed:AddKeyPicker('AimbotKeyPickerXD', {
         Default = 'None', 
         SyncToggleState = true, 
@@ -3197,14 +3062,8 @@ if config.uienabled then
         atlas.Misc.Fly.Enabled = FlyingTrue
     end)   
 
-    local FlyBox = movebruh1:AddDependencyBox()
-
-    FlyBox:SetupDependencies({
-        { Toggles.FlySpeed, true } 
-    })
-    
-    FlyBox:AddSlider('', {
-        Text = 'fly speed',
+    movebruh1:AddSlider('', {
+        Text = 'Fly Speed',
         Default = atlas.Misc.Fly.Speed,
         Min = 0,
         Max = 1000,
@@ -3216,7 +3075,7 @@ if config.uienabled then
     })
 
     movebruh1:AddToggle('CFrameSpeed', {
-        Text = 'cframe walkspeed',
+        Text = 'Cframe Walkspeed',
         Default = atlas.Misc['Movement Speed'].CFrame.Enabled, 
         Tooltip = '',
     })
@@ -3239,16 +3098,9 @@ if config.uienabled then
         SpeedTrue = not SpeedTrue
         atlas.Misc['Movement Speed'].CFrame.Enabled = SpeedTrue
     end) 
-
-    local CFrameBox = movebruh1:AddDependencyBox()
-
-    CFrameBox:SetupDependencies({
-        { Toggles.CFrameSpeed, true } 
-    })
-
     
-    CFrameBox:AddSlider('CFrameSpeed', {
-        Text = 'cframe speed',
+    movebruh1:AddSlider('CFrameSpeed', {
+        Text = 'Cframe Speed',
         Default = atlas.Misc['Movement Speed'].CFrame.Speed,
         Min = 0,
         Max = 10,
@@ -3260,7 +3112,7 @@ if config.uienabled then
     })
 
     velocityspoofer:AddToggle('enableantilock', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc['Anti Lock'].Enabled, 
         Tooltip = '',
     })
@@ -3290,7 +3142,7 @@ if config.uienabled then
     end) 
     
     velocityspoofer:AddToggle('Y', {
-        Text = 'notify',
+        Text = 'Notify',
         Default = atlas.Misc['Anti Lock'].Notify, 
         Tooltip = '',
     })
@@ -3300,7 +3152,7 @@ if config.uienabled then
     end)
 
     velocityspoofer:AddToggle('enablevis', {
-        Text = 'enable visualization',
+        Text = 'Enable Visualization',
         Default = atlas.Misc['Anti Lock']['Show Visualization'].Enabled, 
         Tooltip = '',
     })
@@ -3316,44 +3168,26 @@ if config.uienabled then
         Text = 'Visualization Type',
         Tooltip = '',
         Callback = function(bool)
-            local visualizationTypes = {
-                ["dot"] = "Dot",
-                ["line"] = "Line"
-            }
-            
-            if visualizationTypes[bool] then
-                atlas.Misc['Anti Lock']['Show Visualization'].Type = visualizationTypes[bool]
-            end            
+            atlas.Misc['Anti Lock']['Show Visualization'].Type = bool        
         end
     })
 
     velocityspoofer:AddDropdown('MyDropdown', {
-        Values = {"none","pred multiplier", "pred breaker", "underground","sky","random"},
+        Values = {"None","Pred Multiplier", "Pred Breaker", "UnderGround","Sky","Random"},
         Default = 6,
         Multi = false, 
         Text = 'velocity type',
         Tooltip = '',
         Callback = function(bool)
-            local antiLockTypes = {
-                ["pred multiplier"] = "Pred Multiplier",
-                ["pred breaker"] = "Pred Breaker",
-                ["underground"] = "UnderGround",
-                ["sky"] = "Sky",
-                ["random"] = "Random"
-            }
-            
-            if antiLockTypes[bool] then
-                atlas.Misc['Anti Lock'].Type = antiLockTypes[bool]
-            else
-                if bool == "none" then
-                    atlas.Misc['Anti Lock'].Enabled = false
-                end
-            end            
+            atlas.Misc['Anti Lock'].Type = bool
+            if bool == "None" then
+                atlas.Misc['Anti Lock'].Enabled = false
+            end           
         end
     })
     
     CframeDesyncXD:AddToggle('enablecframe', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc['Anti Lock']['C-Sync'].Enabled, 
         Tooltip = '',
     })
@@ -3401,7 +3235,7 @@ if config.uienabled then
     end)
 
     CframeDesyncXD:AddToggle('strafeenable', {
-        Text = 'notify',
+        Text = 'Notify',
         Default = atlas.Misc['Anti Lock']['C-Sync'].Notify, 
         Tooltip = '',
     })
@@ -3411,7 +3245,7 @@ if config.uienabled then
     end)
 
     CframeDesyncXD:AddToggle('strafeenable', {
-        Text = 'attach',
+        Text = 'Attach',
         Default = atlas.Misc['Anti Lock']['C-Sync'].Attach, 
         Tooltip = '',
     })
@@ -3421,7 +3255,7 @@ if config.uienabled then
     end)
 
     CframeDesyncXD:AddToggle('auytoan', {
-        Text = 'auto shoot',
+        Text = 'Auto Shoot',
         Default = atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Enabled, 
         Tooltip = '',
     }):AddKeyPicker("", { Default = 'None', NoUI = false, SyncToggleState = true, Text = '' }) 
@@ -3430,47 +3264,30 @@ if config.uienabled then
         atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Enabled = bool
     end)
 
-    local ayoa = CframeDesyncXD:AddDependencyBox()
-
-    ayoa:SetupDependencies({
-        { Toggles.auytoan, true } 
-    })
-
-    ayoa:AddDropdown('MyDropdown', {
-        Values = {"tool","mouse"}, 
-        Default = 1,
+    CframeDesyncXD:AddDropdown('MyDropdown', {
+        Values = {"Tool","Mouse"}, 
+        Default = atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Method,
         Multi = false, 
-        Text = 'method',
+        Text = 'Shoot Method',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Method = bool
-            if bool == "tool" then 
-                atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Method = "Tool"
-            elseif bool == "mouse" then 
-                atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.Method = "Mouse"
-            end
         end 
     })
 
-    ayoa:AddDropdown('MyDropdown', {
-        Values = {"on client","on target"}, 
-        Default = 1,
+    CframeDesyncXD:AddDropdown('MyDropdown', {
+        Values = {"On Client","On Target"}, 
+        Default = atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.WhenToShoot,
         Multi = false, 
-        Text = 'when to auto shoot',
+        Text = 'When To Shoot',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.WhenToShoot = bool
-            if bool == "on client" then 
-                atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.WhenToShoot = "On Client"
-            elseif bool == "on target" then 
-                atlas.Misc['Anti Lock']['C-Sync'].AutoShoot.WhenToShoot = "On Target"
-            end
         end 
     })
 
-
     CframeDesyncXD:AddToggle('showd', {
-        Text = 'visualizer',
+        Text = 'Visualize',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Visualize'].Enabled, 
         Tooltip = '',
     })
@@ -3479,26 +3296,10 @@ if config.uienabled then
         atlas.Misc['Anti Lock']['C-Sync']['Visualize'].Enabled = bool
     end)
 
-    local visaulizebox = CframeDesyncXD:AddDependencyBox()
 
-    visaulizebox:SetupDependencies({
-        { Toggles.showd, true } 
-    })
-
-    visaulizebox:AddToggle('strafeenable', {
-        Text = 'visualize chams',
-        Default = false, 
-        Tooltip = '',
-    })
-    
-    Toggles.strafeenable:OnChanged(function(bool)
-        enablevisualizechams = bool
-        enabletargethighlight = bool
-    end)
-
-    visaulizebox:AddDropdown('MyDropdown', {
-        Values = {"dummy","line","dot"}, 
-        Default = 1,
+    CframeDesyncXD:AddDropdown('MyDropdown', {
+        Values = {"Dummy","Line","Dot"}, 
+        Default = atlas.Misc['Anti Lock']['C-Sync']['Visualize'].Type,
         Multi = false, 
         Text = 'visualize type',
         Tooltip = '',
@@ -3507,34 +3308,19 @@ if config.uienabled then
         end
     })
 
-    CframeDesyncXD:AddDivider()
-
     CframeDesyncXD:AddDropdown('MyDropdown', {
-        Values = {"underground", "random", "void","void spam","strafe","around"}, 
-        Default = 2,
+        Values = {"Under Ground", "Random", "void","Void Spam","Strafe","Around"}, 
+        Default = atlas.Misc['Anti Lock']['C-Sync'].Type,
         Multi = false, 
-        Text = 'cframe desync type',
+        Text = 'Cframe Desync Type',
         Tooltip = '',
         Callback = function(bool)
-            local typeMap = {
-                underground = "Under Ground",
-                random = "Random",
-                void = "Void",
-                strafe = "Strafe",
-                ['void spam'] = "Void Spam",
-                around = "Around"
-            }
-
-            local cSyncType = typeMap[bool]
-
-            if cSyncType then
-                atlas.Misc['Anti Lock']['C-Sync'].Type = cSyncType
-            end
+            atlas.Misc['Anti Lock']['C-Sync'].Type = bool
         end
     })
 
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'random power',
+        Text = 'Random Power',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Random Power'],
         Min = 0,
         Max = 300,
@@ -3546,7 +3332,7 @@ if config.uienabled then
     })
 
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'underground height',
+        Text = 'Underground Height',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Underground Height'],
         Min = -5,
         Max = 50,
@@ -3558,7 +3344,7 @@ if config.uienabled then
     })
 
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'strafe speed',
+        Text = 'Strafe Speed',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Strafe Speed'],
         Min = 0,
         Max = 100,
@@ -3570,7 +3356,7 @@ if config.uienabled then
     })
 
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'strafe distance',
+        Text = 'Strafe Distance',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Strafe Distance'],
         Min = 0,
         Max = 100,
@@ -3582,7 +3368,7 @@ if config.uienabled then
     })
 
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'strafe height',
+        Text = 'Strafe Height',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Strafe Height'],
         Min = 0,
         Max = 100,
@@ -3594,7 +3380,7 @@ if config.uienabled then
     })
     
     CframeDesyncXD:AddSlider('OffsetXSlider', {
-        Text = 'around amount',
+        Text = 'Around Distance',
         Default = atlas.Misc['Anti Lock']['C-Sync']['Around Distance'],
         Min = 0,
         Max = 100,
@@ -3604,7 +3390,6 @@ if config.uienabled then
             atlas.Misc['Anti Lock']['C-Sync']['Around Distance'] = bool
         end
     })
-
 
     local function updateDoors(state)
     local map = workspace:FindFirstChild("MAP")
@@ -3635,7 +3420,7 @@ end)
 
 
     fakeanimas:AddToggle('AnimationsFake', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Animations.Enabled, 
         Tooltip = '',
     })
@@ -3644,21 +3429,15 @@ end)
         atlas.Animations.Enabled = bool
     end)
 
-    local ABox = fakeanimas:AddDependencyBox()
-
-    ABox:SetupDependencies({
-        { Toggles.AnimationsFake, true } 
-    })
-
-    ABox:AddDropdown('MyDropdown', {
-        Values = {"floss","shakedabooty","hump","fancyfeet","hyperdance","fasthands","backflip","the zab","skibiditoilet","flex walk","yung blud","happy","none"}, 
+    fakeanimas:AddDropdown('MyDropdown', {
+        Values = {"Floss","Shake Da Booty","Fancy Foot","Hyper Dance","Fast Hands","Back Flip","The Zab","Skibidi Toilet","Flex Walk","Yung Blud","Happy","None"}, 
         Default = atlas.Animations.Animation,
         Multi = false, 
-        Text = 'animation type',
+        Text = 'Animation Type',
         Tooltip = '',
         Callback = function(bool)
             atlas.Animations.Animation = bool
-            if atlas.Animations.Animation == "none" then 
+            if atlas.Animations.Animation == "None" then 
                 atlas.Animations.Enabled = false
             else
                 atlas.Animations.Enabled = true
@@ -3666,8 +3445,8 @@ end)
         end
     })
 
-    ABox:AddSlider('OffsetXSlider', {
-        Text = 'animation speed',
+    fakeanimas:AddSlider('OffsetXSlider', {
+        Text = 'Animation Speed',
         Default = atlas.Animations.Speed,
         Min = 0,
         Max = 5,
@@ -3677,33 +3456,6 @@ end)
             atlas.Animations.Speed = bool
         end
     })
-
-    ABox:AddToggle('AnimationsFake', {
-        Text = 'block',
-        Default = false, 
-        Tooltip = '',
-    })
-    
-    Toggles.AnimationsFake:OnChanged(function(bool)
-        if atlas.Animations.Enabled then
-            local H = ReplicatedStorage:FindFirstChild("ClientAnimations")
-            if H then
-                local Dance = H:FindFirstChild("Block")
-                if bool then
-                    if Dance then
-                        LoadedAnim = Client.Character.Humanoid:LoadAnimation(Dance)
-                        LoadedAnim:Play()
-                    end
-                else
-                    if LoadedAnim then
-                        pcall(function()
-                            LoadedAnim:Stop()
-                        end)
-                    end
-                end
-            end
-        end        
-    end)
 
     buyingtheseguns:AddToggle('AutoBuys', {
         Text = 'enable',
@@ -3715,50 +3467,44 @@ end)
         atlas.Misc.AutoBuy.Enabled = bool
     end)
 
-    local UtilityAutoBuy = buyingtheseguns:AddDependencyBox()
-
-    UtilityAutoBuy:SetupDependencies({
-        { Toggles.AutoBuys, true } 
-    })
-
-    UtilityAutoBuy:AddDropdown('MyDropdown', {
+    buyingtheseguns:AddDropdown('MyDropdown', {
         Values = {"Glock","SMG","Silencer","TacticalShotgun","P90","AUG","Shotgun","RPG","AR","Double-Barrel SG","Flamethrower","Revolver","LMG","AK47","DrumGun","Silencer","GrenadeLauncher","Taser","SilencerAR","Grenade"}, 
         Default = atlas.Misc.AutoBuy.Gun,
         Multi = false, 
-        Text = 'gun type',
+        Text = 'Gun Type',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.AutoBuy.Gun = bool
         end
     })
 
-    UtilityAutoBuy:AddDropdown('MyDropdown', {
+    buyingtheseguns:AddDropdown('MyDropdown', {
         Values = {"Cranberry","Donut","Pizza","Chicken","Popcorn","Hamburger","Taco","Starblox Latte","Lettuce","Lemonade"}, 
         Default = atlas.Misc.AutoBuy.Foods,
         Multi = false, 
-        Text = 'foods type',
+        Text = 'Foods Type',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.AutoBuy.Foods = bool
         end
     })
 
-    UtilityAutoBuy:AddDropdown('MyDropdown', {
+    buyingtheseguns:AddDropdown('MyDropdown', {
         Values = {"Surgeon Mask","Knife"}, 
         Default = atlas.Misc.AutoBuy.Misc,
         Multi = false, 
-        Text = 'misc type',
+        Text = 'Misc Type',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.AutoBuy.Misc = bool
         end
     })
 
-    UtilityAutoBuy:AddDropdown('MyDropdown', {
+    buyingtheseguns:AddDropdown('MyDropdown', {
         Values = {"High-Medium Armor","Medium Armor"}, 
         Default = atlas.Misc.AutoBuy.Armor,
         Multi = false, 
-        Text = 'armor type',
+        Text = 'Armor Type',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.AutoBuy.Armor = bool
@@ -3766,7 +3512,7 @@ end)
     })
 
     buyingtheseguns:AddToggle('EnableAArmor', {
-        Text = 'auto armor',
+        Text = 'Auto Armor',
         Default = atlas.Misc.AutoBuy.AutoArmor.Enabled, 
         Tooltip = '',
     })
@@ -3775,14 +3521,8 @@ end)
         atlas.Misc.AutoBuy.AutoArmor.Enabled = bool
     end)
 
-    local AutoArmorX = buyingtheseguns:AddDependencyBox()
-
-    AutoArmorX:SetupDependencies({
-        { Toggles.EnableAArmor, true } 
-    })
-
-    AutoArmorX:AddSlider('OffsetXSlider', {
-        Text = 'armor buy on',
+    buyingtheseguns:AddSlider('OffsetXSlider', {
+        Text = 'Armor Buy On',
         Default = atlas.Misc.AutoBuy.AutoArmor.BuyOn,
         Min = 10,
         Max = 100,
@@ -3793,8 +3533,8 @@ end)
         end
     })
 
-    UtilityAutoBuy:AddSlider('OffsetXSlider', {
-        Text = 'ammo amount',
+    buyingtheseguns:AddSlider('OffsetXSlider', {
+        Text = 'Ammo Amount',
         Default = atlas.Misc.AutoBuy.AmmoAmount,
         Min = 0,
         Max = 100,
@@ -3805,8 +3545,8 @@ end)
         end
     })
 
-    UtilityAutoBuy:AddSlider('OffsetXSlider', {
-        Text = 'return delay',
+    buyingtheseguns:AddSlider('OffsetXSlider', {
+        Text = 'Return Delay',
         Default = atlas.Misc.AutoBuy.ReturnBackDelay,
         Min = 0,
         Max = 1,
@@ -3817,11 +3557,11 @@ end)
         end
     })
 
-    UtilityAutoBuy:AddButton('buy gun', function() 
+    buyingtheseguns:AddButton('Buy Gun', function() 
         TeleportBuy(ToolName(atlas.Misc.AutoBuy.Gun))
     end)
 
-    UtilityAutoBuy:AddButton('buy ammo', function() 
+    buyingtheseguns:AddButton('Buy Ammo', function() 
         spawn(function()
             local ammoAmount = math.min(atlas.Misc.AutoBuy.AmmoAmount, 100) 
             for i = 1, ammoAmount do
@@ -3831,20 +3571,20 @@ end)
         end)        
     end)
 
-    UtilityAutoBuy:AddButton('buy food', function() 
+    buyingtheseguns:AddButton('Buy Food', function() 
         TeleportBuy(ToolName(atlas.Misc.AutoBuy.Foods))
     end)
 
-    UtilityAutoBuy:AddButton('buy misc', function() 
+    buyingtheseguns:AddButton('Buy Misc', function() 
         TeleportBuy(ToolName(atlas.Misc.AutoBuy.Misc))
     end)
 
-    UtilityAutoBuy:AddButton('buy armor', function() 
+    buyingtheseguns:AddButton('Buy Armor', function() 
         TeleportBuy(ToolName(atlas.Misc.AutoBuy.Armor))
     end)
 
     selfextras:AddToggle('aadsdsd', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc.Extras.Gun.Enabled, 
         Tooltip = '',
     })
@@ -3853,14 +3593,8 @@ end)
         atlas.Misc.Extras.Gun.Enabled = bool
     end)
 
-    local enableeos = selfextras:AddDependencyBox()
-
-    enableeos:SetupDependencies({
-        { Toggles.aadsdsd, true } 
-    })
-
-    enableeos:AddToggle('strafeenable', {
-        Text = 'hit detection',
+    selfextras:AddToggle('strafeenable', {
+        Text = 'Hit Detection',
         Default = atlas.Misc.Extras.Gun['Hit Detection'].Enabled, 
         Tooltip = '',
     })
@@ -3869,8 +3603,8 @@ end)
         atlas.Misc.Extras.Gun['Hit Detection'].Enabled = bool
     end)
 
-    enableeos:AddToggle('strafeenable', {
-        Text = 'log detection',
+    selfextras:AddToggle('strafeenable', {
+        Text = 'Log Detection',
         Default = atlas.Misc.Extras.Gun['Hit Detection']['Log Detection'], 
         Tooltip = '',
     })
@@ -3879,8 +3613,8 @@ end)
         atlas.Misc.Extras.Gun['Hit Detection']['Log Detection'] = bool
     end)
 
-    enableeos:AddToggle('sounden', {
-        Text = 'sound detection',
+    selfextras:AddToggle('sounden', {
+        Text = 'Sound Detection',
         Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled, 
         Tooltip = '',
     })
@@ -3889,27 +3623,21 @@ end)
         atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled = bool
     end)
 
-    local enablesounds = selfextras:AddDependencyBox()
-
-    enablesounds:SetupDependencies({
-        { Toggles.sounden, true } 
-    })
-
-    enablesounds:AddDropdown('MyDropdown', {
+    selfextras:AddDropdown('MyDropdown', {
         Values = {'Default Headshot','Neverlose','Gamesense','One','Bell','Rust','TF2',
     'Among Us','Minecraft','CS:GO','Saber','Baimware','Osu','TF2 Critical',
     'Call of Duty','Bubble','Old Fatality','Ding','Snow','Laser','Mario','Steve'},
         Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds,
         Multi = false, 
-        Text = 'sounds',
+        Text = 'Detection Sounds',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds = bool
         end
     })
 
-    enableeos:AddToggle('gunsounds', {
-        Text = 'gun sound',
+    selfextras:AddToggle('gunsounds', {
+        Text = 'Gun Sound',
         Default = atlas.Misc.Extras.Gun['Gun Sound'].Enabled, 
         Tooltip = '',
     })
@@ -3918,33 +3646,29 @@ end)
         atlas.Misc.Extras.Gun['Gun Sound'].Enabled = bool
     end)
 
-    local enablesounds22 = selfextras:AddDependencyBox()
-
-    enablesounds22:SetupDependencies({
-        { Toggles.gunsounds, true } 
-    })
-
-    enablesounds22:AddDropdown('MyDropdown', {
+    selfextras:AddDropdown('MyDropdown', {
         Values = {'Neverlose','Gamesense','Old Fatality','Mario','Steve'},
         Default = 1,
         Multi = false, 
-        Text = 'sounds',
+        Text = 'Gun Sounds',
         Tooltip = '',
         Callback = function(bool)
-            local gunAssets = {
-                Neverlose = "rbxassetid://8726881116",
-                Gamesense = "rbxassetid://4817809188",
-                ["Old Fatality"] = "rbxassetid://6607142036",
-                Mario = "rbxassetid://2815207981",
-                Steve = "rbxassetid://4965083997"
-            }
-            
-            local GunS = gunAssets[bool] or nil           
+            if bool == "Neverlose" then 
+                GunS = "8726881116"
+            elseif bool == "Gamesense" then 
+                GunS = "4817809188" 
+            elseif GunS == "Old Fatality" then 
+                GunS = "6607142036"
+            elseif bool == "Mario" then 
+                GunS = "2815207981"
+            elseif bool == "Steve" then 
+                GunS = "4965083997"
+            end          
         end
     })
 
     extrastuff:AddToggle('AutoNearBuy', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc.Extras.AutoBuyWhenNear.Enabled, 
         Tooltip = '',
     })
@@ -3953,14 +3677,8 @@ end)
         atlas.Misc.Extras.AutoBuyWhenNear.Enabled = bool
     end)
 
-    local NearBuy = extrastuff:AddDependencyBox()
-
-    NearBuy:SetupDependencies({
-        { Toggles.AutoNearBuy, true } 
-    })
-
-    NearBuy:AddSlider('OffsetXSlider', {
-        Text = 'cooldown',
+    extrastuff:AddSlider('OffsetXSlider', {
+        Text = 'Cooldown',
         Default = atlas.Misc.Extras.AutoBuyWhenNear.Cooldown,
         Min = 0,
         Max = 1,
@@ -3971,44 +3689,44 @@ end)
         end
     })
 
-    NearBuy:AddDropdown('MyDropdown', {
+    extrastuff:AddDropdown('MyDropdown', {
         Values = {"LMG","Revolver","Tact SG","None"},
-        Default = 4,
+        Default = atlas.Misc.Extras.AutoBuyWhenNear.Gun,
         Multi = false, 
-        Text = 'weapons',
+        Text = 'Weapons',
         Tooltip = '',
         Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Guns = bool
+            atlas.Misc.Extras.AutoBuyWhenNear.Gun = bool
         end
     })
 
-    NearBuy:AddDropdown('MyDropdown', {
+    extrastuff:AddDropdown('MyDropdown', {
         Values = {"LMG Ammo","Revolver Ammo","Tact SG Ammo","None"},
         Default = atlas.Misc.Extras.AutoBuyWhenNear.Ammo,
         Multi = false, 
-        Text = 'ammo',
+        Text = 'Ammo',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.Extras.AutoBuyWhenNear.Ammo = bool
         end
     })
 
-    NearBuy:AddDropdown('MyDropdown', {
+    extrastuff:AddDropdown('MyDropdown', {
         Values = {"Medium","High Medium","High Armor","None"},
         Default = atlas.Misc.Extras.AutoBuyWhenNear.Armor,
         Multi = false, 
-        Text = 'armor',
+        Text = 'Armor',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.Extras.AutoBuyWhenNear.Armor = bool
         end
     })
 
-    NearBuy:AddDropdown('MyDropdown', {
+    extrastuff:AddDropdown('MyDropdown', {
         Values = {"Surgeon Mask","Knife","None"},
         Default = atlas.Misc.Extras.AutoBuyWhenNear.Misc,
         Multi = false, 
-        Text = 'others',
+        Text = 'Others',
         Tooltip = '',
         Callback = function(bool)
             atlas.Misc.Extras.AutoBuyWhenNear.Misc = bool
@@ -4016,7 +3734,7 @@ end)
     })
 
     othermods:AddToggle('fov1', {
-        Text = 'auto stomp',
+        Text = 'Stomp',
         Default = false, 
         Tooltip = '',
     })
@@ -4036,7 +3754,7 @@ end)
     end)
 
     othermods:AddToggle('fov1', {
-        Text = 'auto reload',
+        Text = 'Reload',
         Default = atlas.Misc['Auto Reload'], 
         Tooltip = '',
     })
@@ -4046,7 +3764,7 @@ end)
     end)
 
     othermods:AddToggle('fov1', {
-        Text = 'no recoil',
+        Text = 'Recoil',
         Default = atlas.Misc['No Recoil'], 
         Tooltip = '',
     })
@@ -4056,7 +3774,7 @@ end)
     end)
 
     antiaiminglol:AddToggle('enablebox', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = false, 
         Tooltip = '',
     })
@@ -4065,14 +3783,8 @@ end)
         getgenv().enableantiaim = bool
     end)
 
-    local antiaimbox = antiaiminglol:AddDependencyBox()
-
-    antiaimbox:SetupDependencies({
-        { Toggles.enablebox, true } 
-    })
-
-    antiaimbox:AddToggle('strafeenable', {
-        Text = 'spam crouch',
+    antiaiminglol:AddToggle('strafeenable', {
+        Text = 'Spam Crouch',
         Default = false, 
         Tooltip = '',
     })
@@ -4135,8 +3847,8 @@ end)
         end                
     end)
 
-    antiaimbox:AddToggle('strafeenable', {
-        Text = 'spam block',
+    antiaiminglol:AddToggle('strafeenable', {
+        Text = 'Spam Block',
         Default = false, 
         Tooltip = '',
     })
@@ -4198,8 +3910,8 @@ end)
         end       
     end)
 
-    antiaimbox:AddToggle('spinbotenab', {
-        Text = 'spinbot',
+    antiaiminglol:AddToggle('spinbotenab', {
+        Text = 'Spin Bot',
         Default = false, 
         Tooltip = '',
     })
@@ -4209,14 +3921,8 @@ end)
     end)
     getgenv().spinbotspeed = 10
 
-    local antiaimbox23 = antiaimbox:AddDependencyBox()
-
-    antiaimbox23:SetupDependencies({
-        { Toggles.spinbotenab, true } 
-    })
-
-    antiaimbox23:AddSlider('OffsetXSlider', {
-        Text = 'delay',
+    antiaiminglol:AddSlider('OffsetXSlider', {
+        Text = 'Spin Bot Speed',
         Default = getgenv().spinbotspeed,
         Min = 0,
         Max = 100,
@@ -4227,8 +3933,8 @@ end)
         end
     })
 
-    antiaimbox:AddToggle('jittern', {
-        Text = 'jitter',
+    antiaiminglol:AddToggle('jittern', {
+        Text = 'Jitter',
         Default = false, 
         Tooltip = '',
     })
@@ -4236,15 +3942,9 @@ end)
     Toggles.jittern:OnChanged(function(bool)
         getgenv().jitterenabled = bool
     end)
-
-    local antiaimbox232 = antiaimbox:AddDependencyBox()
-
-    antiaimbox232:SetupDependencies({
-        { Toggles.jittern, true } 
-    })
-
-    antiaimbox232:AddSlider('OffsetXSlider', {
-        Text = 'jitter delay',
+    
+    antiaiminglol:AddSlider('OffsetXSlider', {
+        Text = 'Jitter Delay',
         Default = getgenv().jitterDelay,
         Min = 0,
         Max = 50,
@@ -4256,7 +3956,7 @@ end)
     })
     
     othermods:AddToggle('enablespa', {
-        Text = 'force equip',
+        Text = 'Force Equip',
         Default = false, 
         Tooltip = '',
     })
@@ -4265,14 +3965,8 @@ end)
         getgenv().forceequip = bool
     end)
 
-    local ForceBox = othermods:AddDependencyBox()
-
-    ForceBox:SetupDependencies({
-        { Toggles.enablespa, true } 
-    })
-
-    ForceBox:AddSlider('OffsetXSlider', {
-        Text = 'delay',
+    othermods:AddSlider('OffsetXSlider', {
+        Text = 'Delay',
         Default = getgenv().forcedelay,
         Min = 0,
         Max = 1,
@@ -4283,17 +3977,17 @@ end)
         end
     })
 
-    ForceBox:AddDropdown('MyDropdown', {
-        Values = {"lmg","revolver","knife"},
+    othermods:AddDropdown('MyDropdown', {
+        Values = {"LMG","Revolver","Knife"},
         Default = 1,
         Multi = false, 
-        Text = 'tool',
+        Text = 'Tool',
         Tooltip = '',
         Callback = function(bool)
             local toolMappings = {
-                lmg = "[LMG]",
-                revolver = "[Revolver]",
-                knife = "[Knife]"
+                LMG = "[LMG]",
+                Revolver = "[Revolver]",
+                Knife = "[Knife]"
             }
             
             local toolToForce = toolMappings[bool] or nil   
@@ -4301,7 +3995,7 @@ end)
     })
 
     ingamean:AddToggle('enablespa', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Animations.Others.Enabled, 
         Tooltip = '',
     })
@@ -4311,7 +4005,7 @@ end)
     end)
 
     ingamean:AddToggle('enablespa', {
-        Text = 'disable in-game',
+        Text = 'Disable In-Game',
         Default = atlas.Animations.Others['Disable In-Game'], 
         Tooltip = '',
     })
@@ -4321,7 +4015,7 @@ end)
     end)
 
     crosshandle:AddToggle('enablespa', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = false, 
         Tooltip = '',
     })
@@ -4330,14 +4024,8 @@ end)
         getgenv().enablecrosshair = bool
     end)
 
-    local showothers = crosshandle:AddDependencyBox()
-
-    showothers:SetupDependencies({
-        { Toggles.enablespa, true } 
-    })
-
-    showothers:AddToggle('visiblkes', {
-        Text = 'visible',
+    crosshandle:AddToggle('visiblkes', {
+        Text = 'Visible',
         Default = false, 
         Tooltip = '',
     })
@@ -4351,7 +4039,7 @@ end)
         end
     end)
 
-    showothers:AddLabel('color'):AddColorPicker('ColorPicker', {
+    crosshandle:AddLabel('Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(84, 101, 255),
         Title = 'Color', 
     })
@@ -4360,8 +4048,8 @@ end)
         CROSSHAIR_COLOR = bool
     end)
 
-    showothers:AddSlider('OffsetXSlider', {
-        Text = 'length',
+    crosshandle:AddSlider('OffsetXSlider', {
+        Text = 'Length',
         Default = CROSSHAIR_LENGTH,
         Min = 0,
         Max = 250,
@@ -4372,8 +4060,8 @@ end)
         end
     })
 
-    showothers:AddSlider('OffsetXSlider', {
-        Text = 'spacing',
+    crosshandle:AddSlider('OffsetXSlider', {
+        Text = 'Spacing',
         Default = CROSSHAIR_SPACING,
         Min = 0,
         Max = 50,
@@ -4384,8 +4072,8 @@ end)
         end
     })
 
-    showothers:AddSlider('OffsetXSlider', {
-        Text = 'thickness',
+    crosshandle:AddSlider('OffsetXSlider', {
+        Text = 'Thickness',
         Default = CROSSHAIR_THICKNESS,
         Min = 0,
         Max = 50,
@@ -4400,8 +4088,8 @@ end)
         end
     })
 
-    showothers:AddToggle('rotates', {
-        Text = 'rotate',
+    crosshandle:AddToggle('rotates', {
+        Text = 'Rotate',
         Default = false, 
         Tooltip = '',
     })
@@ -4410,14 +4098,8 @@ end)
         rotateCrosshair = bool
     end)
 
-    local showothers2 = showothers:AddDependencyBox()
-
-    showothers2:SetupDependencies({
-        { Toggles.rotates, true } 
-    })
-
-    showothers2:AddSlider('OffsetXSlider', {
-        Text = 'speed',
+    crosshandle:AddSlider('OffsetXSlider', {
+        Text = 'Rotation Speed',
         Default = ROTATION_SPEED,
         Min = 0,
         Max = 800,
@@ -4429,7 +4111,7 @@ end)
     })
 
     worldlights:AddToggle('enableworld', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc.Extras.World.Enabled, 
         Tooltip = '',
     })
@@ -4438,14 +4120,8 @@ end)
         atlas.Misc.Extras.World.Enabled = bool
     end)
 
-    local showothers22 = worldlights:AddDependencyBox()
-
-    showothers22:SetupDependencies({
-        { Toggles.enableworld, true } 
-    })
-
-    showothers22:AddToggle('enable', {
-        Text = 'technology',
+    worldlights:AddToggle('enable', {
+        Text = 'Technology',
         Default = atlas.Misc.Extras.World.Technology.Enabled, 
         Tooltip = '',
     })
@@ -4454,44 +4130,19 @@ end)
         atlas.Misc.Extras.World.Technology.Enabled = bool
     end)
 
-    local showothers222222 = showothers22:AddDependencyBox()
-
-    showothers222222:SetupDependencies({
-        { Toggles.enable, true } 
-    })
-
-    showothers222222:AddDropdown('MyDropdown', {
-        Values = {"voxel","compatibility","shadow map","future"},
-        Default = 1,
+    worldlights:AddDropdown('MyDropdown', {
+        Values = {"Voxel","Compatibility","ShadowMap","Future"},
+        Default = atlas.Misc.Extras.World.Technology.Type,
         Multi = false, 
-        Text = 'type',
+        Text = 'Tehcnology Type',
         Tooltip = '',
         Callback = function(bool)
-            if bool == "voxel" then 
-                atlas.Misc.Extras.World.Technology.Type = "Voxel"
-            elseif bool == "compatibility" then 
-                atlas.Misc.Extras.World.Technology.Type = "Compatibility"
-            elseif bool == "shadow map" then 
-                atlas.Misc.Extras.World.Technology.Type = "ShadowMap"
-            elseif bool == "future" then 
-                atlas.Misc.Extras.World.Technology.Type = "Future"
-            end
+            atlas.Misc.Extras.World.Technology.Type = bool
         end
     })
 
-    showothers22:AddToggle('removedoors', {
-        Text = 'remove doors',
-        Default = false, 
-        Tooltip = '',
-    })
-    
-    Toggles.removedoors:OnChanged(function(bool)
-        getgenv().removedahooddoors = bool 
-    end)
-
-
-    showothers22:AddToggle('enableam', {
-        Text = 'ambience',
+    worldlights:AddToggle('enableam', {
+        Text = 'Ambience',
         Default = atlas.Misc.Extras.World.Ambience.Enabled, 
         Tooltip = '',
     })
@@ -4500,13 +4151,7 @@ end)
         atlas.Misc.Extras.World.Ambience.Enabled = bool
     end)
 
-    local showothers222 = showothers22:AddDependencyBox()
-
-    showothers222:SetupDependencies({
-        { Toggles.enableam, true } 
-    })
-
-    showothers222:AddLabel('indoor'):AddColorPicker('ColorPicker', {
+    worldlights:AddLabel('Indoor'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 100),
         Title = 'Color', 
     })
@@ -4515,7 +4160,7 @@ end)
         atlas.Misc.Extras.World.Ambience.Color.Indoor = bool
     end)
 
-    showothers222:AddLabel('outside'):AddColorPicker('ColorPicker', {
+    worldlights:AddLabel('Outside'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 255),
         Title = 'Color', 
     })
@@ -4524,8 +4169,8 @@ end)
         atlas.Misc.Extras.World.Ambience.Color.Outside = bool
     end)
 
-    showothers22:AddToggle('enableam', {
-        Text = 'brightness',
+    worldlights:AddToggle('enableam', {
+        Text = 'Brightness',
         Default = atlas.Misc.Extras.World.Brightness.Enabled, 
         Tooltip = '',
     })
@@ -4534,14 +4179,8 @@ end)
         atlas.Misc.Extras.World.Brightness.Enabled = bool
     end)
 
-    local showothers222 = showothers22:AddDependencyBox()
-
-    showothers222:SetupDependencies({
-        { Toggles.enableam, true } 
-    })
-
-    showothers222:AddSlider('OffsetXSlider', {
-        Text = 'amount',
+    worldlights:AddSlider('OffsetXSlider', {
+        Text = 'Brightness Amount',
         Default = atlas.Misc.Extras.World.Brightness.Amount,
         Min = 0,
         Max = 100,
@@ -4552,8 +4191,8 @@ end)
         end
     })
 
-    showothers22:AddToggle('niggers', {
-        Text = 'fog',
+    worldlights:AddToggle('niggers', {
+        Text = 'Fog',
         Default = atlas.Misc.Extras.World.Fog.Enabled, 
         Tooltip = '',
     })
@@ -4562,13 +4201,7 @@ end)
         atlas.Misc.Extras.World.Fog.Enabled = bool
     end)
 
-    local showothers22222 = showothers22:AddDependencyBox()
-
-    showothers22222:SetupDependencies({
-        { Toggles.niggers, true } 
-    })
-
-    showothers22222:AddLabel('color'):AddColorPicker('ColorPicker', {
+    worldlights:AddLabel('Fog Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 255),
         Title = 'Color', 
     })
@@ -4577,8 +4210,8 @@ end)
         atlas.Misc.Extras.World.Fog.Color = bool
     end)
 
-    showothers22:AddToggle('niggerchas', {
-        Text = 'self chams',
+    worldlights:AddToggle('niggerchas', {
+        Text = 'Self Chams',
         Default = atlas.Misc.Extras.World['Self Chams'].Enabled, 
         Tooltip = '',
     })
@@ -4587,13 +4220,7 @@ end)
         atlas.Misc.Extras.World['Self Chams'].Enabled = bool
     end)
 
-    local selfhcmhdhasd = worldlights:AddDependencyBox()
-
-    selfhcmhdhasd:SetupDependencies({
-        { Toggles.niggerchas, true } 
-    })
-
-    selfhcmhdhasd:AddLabel('color'):AddColorPicker('ColorPicker', {
+    worldlights:AddLabel('Self Chams Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 255),
         Title = 'Color', 
     })
@@ -4602,25 +4229,19 @@ end)
         atlas.Misc.Extras.World['Self Chams'].Color = bool
     end)
 
-    selfhcmhdhasd:AddDropdown('MyDropdown', {
-        Values = {"neon","forcefield","plastic"},
+    worldlights:AddDropdown('MyDropdown', {
+        Values = {"Neon","ForceField","Plastic"},
         Default = atlas.Misc.Extras.World['Self Chams'].Material,
         Multi = false, 
-        Text = 'material',
+        Text = 'Self Chams Material',
         Tooltip = '',
         Callback = function(bool)
-            if bool == "neon" then 
-                atlas.Misc.Extras.World['Self Chams'].Material = "Neon"
-            elseif bool == "forcefield" then 
-                atlas.Misc.Extras.World['Self Chams'].Material = "ForceField"
-            elseif bool == "plastic" then 
-                atlas.Misc.Extras.World['Self Chams'].Material = "Plastic"
-            end
+            atlas.Misc.Extras.World['Self Chams'].Material = bool
         end
     })
 
-    selfhcmhdhasd:AddToggle('niggerchas', {
-        Text = 'remove clothes',
+    worldlights:AddToggle('niggerchas', {
+        Text = 'Remove Clothes',
         Default = atlas.Misc.Extras.World['Self Chams']['Remove Clothes'], 
         Tooltip = '',
     })
@@ -4630,7 +4251,7 @@ end)
     end)
     
     selfgunned:AddToggle('broniggers', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = false, 
         Tooltip = '',
     })
@@ -4639,14 +4260,8 @@ end)
         getgenv().enabledetections = bool
     end)
 
-    local selrugns = selfgunned:AddDependencyBox()
-
-    selrugns:SetupDependencies({
-        { Toggles.broniggers, true } 
-    })
-
-    selrugns:AddToggle('gunchamslol', {
-        Text = 'gun chams',
+    selfgunned:AddToggle('gunchamslol', {
+        Text = 'Gun Chams',
         Default = atlas.Misc.Extras.Gun["Gun Chams"].Enabled, 
         Tooltip = '',
     })
@@ -4655,30 +4270,18 @@ end)
         atlas.Misc.Extras.Gun["Gun Chams"].Enabled = bool
     end)
 
-    local lkow = selrugns:AddDependencyBox()
-
-    lkow:SetupDependencies({
-        { Toggles.gunchamslol, true } 
-    })
-
-    lkow:AddDropdown('MyDropdown', {
-        Values = {"neon","forcefield","plastic"},
+    selfgunned:AddDropdown('MyDropdown', {
+        Values = {"Plastic","ForceField","Neon"},
         Default = atlas.Misc.Extras.Gun["Gun Chams"].Material,
         Multi = false, 
-        Text = 'material',
+        Text = 'Gun Chams Material',
         Tooltip = '',
         Callback = function(bool)
-            if bool == "neon" then 
-                atlas.Misc.Extras.Gun["Gun Chams"].Material = "Neon"
-            elseif bool == "forcefield" then 
-                atlas.Misc.Extras.Gun["Gun Chams"].Material = "ForceField"
-            elseif bool == "plastic" then 
-                atlas.Misc.Extras.Gun["Gun Chams"].Material = "Plastic"
-            end
+            atlas.Misc.Extras.Gun["Gun Chams"].Material = bool
         end
     })
 
-    lkow:AddLabel('color'):AddColorPicker('ColorPicker', {
+    selfgunned:AddLabel('Gun Chams Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 255),
         Title = 'Color', 
     })
@@ -4687,8 +4290,8 @@ end)
         atlas.Misc.Extras.Gun["Gun Chams"].Color = bool
     end)
 
-    selrugns:AddToggle('niggero', {
-        Text = 'bullet tracers',
+    selfgunned:AddToggle('niggero', {
+        Text = 'Bullet Tracers',
         Default = atlas.Misc.Extras.Gun["Bullet Tracers"].Enabled, 
         Tooltip = '',
     })
@@ -4697,13 +4300,7 @@ end)
         atlas.Misc.Extras.Gun["Bullet Tracers"].Enabled = bool
     end)
 
-    local browhahfsd = selrugns:AddDependencyBox()
-
-    browhahfsd:SetupDependencies({
-        { Toggles.niggero, true } 
-    })
-
-    browhahfsd:AddLabel('color'):AddColorPicker('ColorPicker', {
+    selfgunned:AddLabel('Bullet Tracers Color'):AddColorPicker('ColorPicker', {
         Default = Color3.fromRGB(0, 0, 255),
         Title = 'Color', 
     })
@@ -4712,8 +4309,8 @@ end)
         atlas.Misc.Extras.Gun["Bullet Tracers"].Color = bool
     end)
 
-    browhahfsd:AddSlider('OffsetXSlider', {
-        Text = 'duration',
+    selfgunned:AddSlider('OffsetXSlider', {
+        Text = 'Duration',
         Default = atlas.Misc.Extras.Gun['Bullet Tracers'].Duration,
         Min = 0,
         Max = 2,
@@ -4782,14 +4379,14 @@ end)
     end)
     
     MenuGroup:AddInput('GameID_Check', {
-        Default = 'game id',
+        Default = 'Game ID',
         Numeric = true,
         Finished = false,
-        Text = 'game id:',
-        Placeholder = 'enter game id'
+        Text = 'Game ID:',
+        Placeholder = 'Enter Valid Game ID'
     })
     
-    MenuGroup:AddButton('join game', function()
+    MenuGroup:AddButton('Join Game', function()
         local gameID = tonumber(Options.GameID_Check.Value)
     
         if gameID then
@@ -4800,7 +4397,7 @@ end)
     end)
 
     MenuGroup:AddToggle('niggero', {
-        Text = 'show games list',
+        Text = 'Show Games List',
         Default = false, 
         Tooltip = '',
     })
@@ -4812,24 +4409,24 @@ end)
     })
 
     browhahfsd222:AddDropdown('MyDropdown', {
-        Values = {"none","baseplate","dea hood","or hood","da uphill","da downhill","da strike"},
+        Values = {"BasePlate","Dea Hood","Or Hood","Da Uphill","Da DownHill","Da Strike"},
         Default = 1,
         Multi = false, 
-        Text = 'games',
+        Text = 'Games',
         Tooltip = '',
         Callback = function(bool)
             gameslol = bool
-            if bool == "baseplate" then 
+            if bool == "BasePlate" then 
                 gameslol = "4483381587"
-            elseif bool == "dea hood" then 
+            elseif bool == "Dea Hood" then 
                 gameslol = "79611122040680"
-            elseif bool == "or hood" then 
+            elseif bool == "Or Hood" then 
                 gameslol = "108927633036435"
-            elseif bool == "da downhill" then 
+            elseif bool == "Da DownHill" then 
                 gameslol = "77369032494150"
-            elseif bool == "da uphill" then 
+            elseif bool == "Da Uphill" then 
                 gameslol = "84366677940861"
-            elseif bool == "da strike" then 
+            elseif bool == "Da Strike" then 
                 gameslol = "15186202290"
             end
         end
@@ -4846,7 +4443,7 @@ end)
     end)
 
     MenuGroup:AddToggle('strafeenable', {
-        Text = 'watermark',
+        Text = 'Watermark',
         Default = false, 
         Tooltip = '',
     })
@@ -4875,6 +4472,7 @@ end)
     end)
 end
 end
+
 
 --- this only logs username, displayname, time, hwid, job id and game id and game name
 

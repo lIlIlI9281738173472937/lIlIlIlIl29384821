@@ -4,14 +4,6 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
-
-getgenv().config = {
-    uienabled = true,
-    uibind = "H",
-    autoshow = true,
-    watermark = false
-}
-
 getgenv().atlas = { 
     ['Target Aimbot'] = {
         ['Enabled'] = false,
@@ -42,7 +34,12 @@ getgenv().atlas = {
             ['FOV'] = {
                 ['Enabled'] = false,
                 ['Visible'] = false,
-                ['Radius'] = 600,
+                ['Radius'] = 120,
+                ['Color'] = Color3.fromRGB(84, 101, 255),
+            },
+            ['Part'] = {
+                ['Enabled'] = false,
+                ['Material'] = "Neon",
                 ['Color'] = Color3.fromRGB(84, 101, 255),
             },
 		},
@@ -82,33 +79,22 @@ getgenv().atlas = {
         ['Fly'] = {
             ['Enabled'] = false,
             ['Speed'] = 219.9,
-            ['Keybind'] = ''
         },
         ['Movement Speed'] = {
-            ['CFrame'] = {
-                ['Enabled'] = false,
-                ['Speed'] = 1.6,
-                ['Keybind'] = ''
-            },
+            ['Enabled'] = false,
+            ['Type'] = "CFrame",
+            ['CFrameSpeed'] = 1.3,
         },
         ['Anti Lock'] = {
-            ['Enabled'] = false,
-            ['Notify'] = false,
-            ['Keybind'] = '',
-            ['Type'] = '',
-            ['Show Visualization'] = {
-                ['Enabled'] = false,
-                ['Type'] = "Line",
-            },
             ['C-Sync'] = { 
                 ['Enabled'] = false,
-                ['Keybind'] = '',
                 ['Type'] = 'Random', 
                 ['Visualize'] = {
                     ['Enabled'] = false,
                     ['Type'] = 'Dummy',
-                    ['FillColor'] = Color3.fromRGB(84, 101, 255),
-                    ['OutlineColor'] = Color3.fromRGB(255, 255, 255),
+                    ['DummyColor'] = Color3.fromRGB(84, 101, 255),
+                    ['LineColor'] = Color3.fromRGB(84, 101, 255),
+                    ['DotColor'] = Color3.fromRGB(84, 101, 255),
                 },
                 ['Random Power'] = 23.5, 
                 ['Underground Height'] = 5,
@@ -131,6 +117,7 @@ getgenv().atlas = {
         ['No Recoil'] = false,
         ['AutoBuy'] = {
             ['Enabled'] = false,
+            ['Auto Buy On Respawn'] = false,
             ['ReturnBackDelay'] = 0.1,
             ['Gun'] = 'LMG',
             ['Foods'] = 'Chicken',
@@ -176,10 +163,6 @@ getgenv().atlas = {
                 },
             },
             ['DisableShootSounds'] = false,
-            ['Bullet TP'] = {
-                ['Enabled'] = false,
-                ['Offset'] = {-0,-1,-0},
-            },
             ['Gun'] = {
                 ['Enabled'] = false,
                 ['Gun Chams'] = {
@@ -204,20 +187,20 @@ getgenv().atlas = {
                 ['Hit Detection'] = {
                     ['Enabled'] = false,
                     ['Log Detection'] = false,
+                    ['Hit Chams'] = {
+                        ['Enabled'] = false,
+                        ['Color'] = Color3.fromRGB(84, 101, 255),
+                        ['Duration'] = 0.5,
+                        ['Material'] = "Neon"
+                    },
                     ['Sound Detection'] = {
                         ['Enabled'] = false,
-                        ['Sounds'] = "Mario",
-                    }
+                        ['Volume'] = 0.5,
+                        ['Pitch'] = 0.4,
+                        ['Distortion'] = 0.2,
+                        ['Sounds'] = "Skeet",
+                    },
                 },
-            },
-            ['AutoBuyWhenNear'] = {
-                ['Enabled'] = false,
-                ['Gun'] = 'LMG',
-                ['Ammo'] = 'LMG Ammo',
-                ['Armor'] = 'Medium',
-                ['Foods'] = 'Chicken',
-                ['Misc'] = 'Surgeon Mask',
-                ['Cooldown'] = 0.01,
             },
         },
     },
@@ -230,8 +213,14 @@ getgenv().atlas = {
             ['Disable In-Game'] = false,
         },
     },
+    ['Debugger'] = {
+        ['View'] = false,
+        ['Highlight'] = false,
+    },
 }
 
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
 local UserInputService = game:GetService("UserInputService")
 local function safeLoad(url)
     local success, result = pcall(function()
@@ -252,9 +241,9 @@ local mobileURLs = {
 }
 
 local pcURLs = {
-    Library = "https://raw.githubusercontent.com/DetainedMonkey2891/lin-customized/refs/heads/main/a",
     ThemeManager = "https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina",
-    SaveManager = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua"
+    SaveManager = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua",
+    Library = 'https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria',
 }
 
 local selectedURLs = UserInputService.TouchEnabled and mobileURLs or pcURLs
@@ -280,81 +269,11 @@ local Mouse = Client:GetMouse()
 local Stats = game:GetService("Stats")
 local ServerStatsItem = Stats.Network.ServerStatsItem["Data Ping"]
 local TargetPlayer = nil
-local startTime = tick()
-local elapsedTime = tick() - startTime
-local minutes = math.floor(elapsedTime / 60)
-local seconds = elapsedTime % 60
 local StrafeSpeed = 0
 local lastUpdate = 0
-local updateInterval = 0.1
-local SavesXd = {
-    originalProperties = {},
-    value000 = atlas['Target Aimbot'].Prediction,
-    Dances = {
-        ["Floss"] = 10714340543,
-        ["Shake Da Booty"] = 14548619594,
-        ["Fancy Feet"] = 10714076981,
-        ["Hyper Dance"] = 10714369624,
-        ["Fast Hands"] = 10714100539,
-        ["Back Flip"] = 15693621070,
-        ["The Zab"] = 129470135909814,
-        ["Skibidi Toilet"] = 134283166482394,
-        ["Flex Walk"] = 15505459811,
-        ["Yung Blud"] = 15609995579,
-        ["Happy"] = 10714352626,
-    },
-    currentAnimation,
-    currentAnimationID,
-    currentSpeed,
-    HitSounds = {
-        ["Default Headshot"] = "rbxassetid://9119561046",
-        ["Default Body"] = "rbxassetid://9114487369",
-        Neverlose = "rbxassetid://8726881116",
-        Gamesense = "rbxassetid://4817809188",
-        One = "rbxassetid://7380502345",
-        Bell = "rbxassetid://6534947240",
-        Rust = "rbxassetid://1255040462",
-        TF2 = "rbxassetid://2868331684",
-        Slime = "rbxassetid://6916371803",
-        ["Among Us"] = "rbxassetid://5700183626",
-        Minecraft = "rbxassetid://4018616850",
-        ["CS:GO"] = "rbxassetid://6937353691",
-        Saber = "rbxassetid://8415678813",
-        Baimware = "rbxassetid://3124331820",
-        Osu = "rbxassetid://7149255551",
-        ["TF2 Critical"] = "rbxassetid://296102734",
-        Bat = "rbxassetid://3333907347",
-        ["Call of Duty"] = "rbxassetid://5952120301",
-        Bubble = "rbxassetid://6534947588",
-        Pick = "rbxassetid://1347140027",
-        Pop = "rbxassetid://198598793",
-        Bruh = "rbxassetid://4275842574",
-        Bamboo = "rbxassetid://3769434519",
-        Crowbar = "rbxassetid://546410481",
-        Weeb = "rbxassetid://6442965016",
-        Beep = "rbxassetid://8177256015",
-        Bambi = "rbxassetid://8437203821",
-        Stone = "rbxassetid://3581383408",
-        ["Old Fatality"] = "rbxassetid://6607142036",
-        Click = "rbxassetid://8053704437",
-        Ding = "rbxassetid://7149516994",
-        Snow = "rbxassetid://6455527632",
-        Laser = "rbxassetid://7837461331",
-        Mario = "rbxassetid://2815207981",
-        Steve = "rbxassetid://4965083997"
-    },
-}
-
-local Watermarking = {
-    FrameCounter = 0, 
-    FrameTimer = tick(),
-    FPS = 0,
-    scriptStartTime = tick(),
-    WatermarkConnection
-}
 
 local Assets = {
-    Stored = {
+    WorldStored = {
         ClockTime = game.Lighting.ClockTime,
         OutdoorAmbient = game.Lighting.OutdoorAmbient,
         Ambient = game.Lighting.Ambient,
@@ -366,6 +285,30 @@ local Assets = {
         ColorShift_Bottom = game.Lighting.ColorShift_Bottom,
         Technology_Old = game.Lighting.Technology,
     },
+    AnimationStored = {
+        currentAnimation,
+        currentAnimationID,
+        currentSpeed,
+    },
+    DancesStored = {
+        Dances = {
+            ["Floss"] = 10714340543,
+            ["Shake Da Booty"] = 14548619594,
+            ["Fancy Feet"] = 10714076981,
+            ["Hyper Dance"] = 10714369624,
+            ["Fast Hands"] = 10714100539,
+            ["Back Flip"] = 15693621070,
+            ["The Zab"] = 129470135909814,
+            ["Skibidi Toilet"] = 134283166482394,
+            ["Flex Walk"] = 15505459811,
+            ["Yung Blud"] = 15609995579,
+            ["Happy"] = 10714352626,
+        },
+    },
+    OtherStored = {
+        originalProperties = {},
+        value000 = atlas['Target Aimbot'].Prediction,
+    },
 }
 
 local drawings = {
@@ -376,7 +319,9 @@ local drawings = {
     SelfDotCircle = Drawing.new("Circle"),
     SelfTracerLine = Drawing.new("Line"),
     FOVCircle = Drawing.new("Circle"),
-    LocalHL = Instance.new("Highlight")
+    LocalHL = Instance.new("Highlight"),
+    TargetHighlight = Instance.new("Highlight"),
+    IgnoreAtlasF = Instance.new("Folder", workspace)
 }
 
 drawings.SelfDotCircle.Visible = false
@@ -441,70 +386,19 @@ if UserInputService.TouchEnabled then
     end)
 end
 
-local updateInterval2 = 2
-local frameCount2 = 0  
-RunService.Heartbeat:Connect(function()
-    frameCount2 = frameCount2 + 1
-    if atlas['Target Aimbot'].EnableDrawings.FOV.Enabled then
-        if frameCount2 >= updateInterval2 then
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if atlas['Target Aimbot'].EnableDrawings.FOV.Enabled then
             drawings.FOVCircle.Visible = atlas['Target Aimbot'].EnableDrawings.FOV.Visible
             drawings.FOVCircle.Color = atlas['Target Aimbot'].EnableDrawings.FOV.Color
             drawings.FOVCircle.Radius = atlas['Target Aimbot'].EnableDrawings.FOV.Radius
 
             local fovPosition = UserInputService:GetMouseLocation()
             drawings.FOVCircle.Position = Vector2.new(fovPosition.X, fovPosition.Y)
-
-            frameCount = 0
+        else
+            drawings.FOVCircle.Visible = false
         end
-    else
-        drawings.FOVCircle.Visible = false
     end
-end)
-
-local cframe_to_offset = function(origin, target)
-    local actual_origin = origin * CFrame.new(atlas.Misc.Extras['Bullet TP'].Offset[1], atlas.Misc.Extras['Bullet TP'].Offset[2], atlas.Misc.Extras['Bullet TP'].Offset[3], 1, 0, 0, 0, 0, 1, 0, -1, 0)
-    return actual_origin:ToObjectSpace(target):inverse();
-end
-
-local something_tp = function(Tool)
-    local old_grip = Tool.Grip
-    if TargetPlayer and TargetPlayer.Character then
-        Tool.Parent = Client.Backpack
-        Client.Character.RightHand.Anchored = false
-        Tool.Grip = cframe_to_offset(Client.Character.RightHand.CFrame, TargetPlayer.Character.HumanoidRootPart.CFrame)
-        Client.Character.RightHand.Anchored = true
-        Tool.Parent = Client.Character
-        RunService.RenderStepped:Wait()
-        Tool.Parent = Client.Backpack
-        Client.Character.RightHand.Anchored = false
-        Tool.Grip = old_grip
-        Tool.Parent = Client.Character
-    end
-end
-
-local bullet_teleport = function(Character)
-    Character.ChildAdded:Connect(function(Child)
-        if atlas.Misc.Extras['Bullet TP'].Enabled then
-            if Child:IsA("Tool") then
-                local Connection
-                Connection = Child.Activated:Connect(function()
-                    something_tp(Child)
-                end)
-
-                Character.ChildRemoved:Connect(function(RemovedChild)
-                    if RemovedChild == Child then
-                        Connection:Disconnect()
-                    end
-                end)
-            end
-        end
-    end)
-end
-
-bullet_teleport(Client.Character)
-
-Client.CharacterAdded:Connect(function()
-    bullet_teleport(Client.Character)
 end)
 
 RayCastCheck = function(Part, PartDescendant)
@@ -567,8 +461,8 @@ end
 
 local function KnockedCheckedLOL()
     if atlas["Target Aimbot"].Checks.KO.Enabled then 
-        if atlas["Target Aimbot"].Checks.KO.Method == "On Health" and TargetPlayer then 
-            if TargetPlayer.Character.Humanoid.Health < 1.80 then
+        if atlas["Target Aimbot"].Checks.KO.Method == "On Health" and Client then 
+            if Client.Character.Humanoid.Health < 2 or Client.Character.Humanoid.Health < 3 then
                 TargetPlayer = nil
                 TargetL = nil
                 if atlas["Target Aimbot"].Checks.KO.Notify then 
@@ -598,7 +492,7 @@ local function KnockedCheckedLOL()
     end
 end
 
-RunService.RenderStepped:Connect(function()
+RunService.PostSimulation:Connect(function()
     KnockedCheckedLOL()
 end)
 
@@ -624,7 +518,7 @@ RecalculateLOL = function(obj, delta)
     end
 end
 
-RunService.Heartbeat:Connect(function()
+--[[RunService.Heartbeat:Connect(function()
     local aimbotSettings = atlas['Target Aimbot']
 
     if aimbotSettings.Enabled and TargetPlayer and TargetPlayer.Character then
@@ -641,6 +535,32 @@ RunService.Heartbeat:Connect(function()
             if success and typeof(predictedVelocity) == "Vector3" then
                 if targetPart:IsA("BasePart") then
                     targetPart.AssemblyLinearVelocity = predictedVelocity
+                end
+            end
+        end
+    end
+end)--]]
+
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+        local aimbotSettings = atlas['Target Aimbot']
+
+        if aimbotSettings.Enabled and TargetPlayer and TargetPlayer.Character then
+            local character = TargetPlayer.Character
+            local aimPartName = aimbotSettings.AimPart
+            local targetPart = character:FindFirstChild(aimPartName)
+            local humanoid = character:FindFirstChild("Humanoid")
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            local resolverSettings = aimbotSettings.Resolver
+
+            if targetPart and humanoid and rootPart and resolverSettings.Enabled then
+                local success, predictedVelocity = pcall(RecalculateLOL, TargetPlayer)
+            
+                if success and typeof(predictedVelocity) == "Vector3" then
+                    if targetPart:IsA("BasePart") then
+                        targetPart.AssemblyLinearVelocity = predictedVelocity
+                    end
                 end
             end
         end
@@ -664,25 +584,7 @@ Mouse.KeyDown:Connect(function(Key)
     end
 end)
 
-local previousSubject
-
-RunService.PostSimulation:Connect(function()
-    local settings = atlas['Target Aimbot']
-    local newSubject = Client.Character 
-
-    if TargetPlayer and TargetPlayer.Character then
-        if settings.View then
-            newSubject = TargetPlayer.Character
-        end
-    end
-
-    if Camera.CameraSubject ~= newSubject then
-        Camera.CameraSubject = newSubject
-        SavesXd.originalProperties = newSubject
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateDrawings", Enum.RenderPriority.Camera.Value, function()
     if not TargetPlayer or not TargetPlayer.Character then
         drawings.TargetDot.Visible = false
         drawings.TargetTracer.Visible = false
@@ -694,6 +596,12 @@ RunService.Heartbeat:Connect(function()
     local aimSettings = atlas['Target Aimbot']
     local aimPartName = aimSettings.AimPart
     local aimPart = character:FindFirstChild(aimPartName)
+
+    if aimSettings.Enabled and aimSettings.View and TargetPlayer then
+        Workspace:FindFirstChildWhichIsA("Camera").CameraSubject = TargetPlayer.Character.Humanoid
+    else
+        Workspace:FindFirstChildWhichIsA("Camera").CameraSubject = Client.Character.Humanoid
+    end 
 
     if aimPart then
         local predictedPosition
@@ -729,11 +637,10 @@ RunService.Heartbeat:Connect(function()
         else
             drawings.TargetTracer.Visible = false
         end
-
         
         drawings.LocalHL.FillColor = atlas['Target Aimbot'].Highlight.Color
         drawings.LocalHL.OutlineColor = atlas['Target Aimbot'].Highlight.Color
-
+        
         if aimSettings.Enabled and aimSettings.Highlight.Enabled then
             if drawings.LocalHL.Parent ~= character then
                 drawings.LocalHL.Parent = character
@@ -744,7 +651,7 @@ RunService.Heartbeat:Connect(function()
             if drawings.LocalHL.Parent ~= game.CoreGui then
                 drawings.LocalHL.Parent = game.CoreGui
             end
-        end
+        end     
     else
         drawings.TargetDot.Visible = false
         drawings.TargetTracer.Visible = false
@@ -758,97 +665,6 @@ end
 local ME = findMainEvent()
 local EventN = ME and (ME.Name == "MAINEVENT" and "STOMP" or "Stomp") or nil    
 
-if Client then
-    local lastPurchaseTime = 0
-    local ignored = workspace:FindFirstChild("Ignored")
-    local shop = ignored and ignored:FindFirstChild("Shop")
-
-    if not shop then
-        
-    end
-
-    local function getItemName(itemType, category)
-        local itemNames = {
-            Guns = {
-                LMG = "[LMG] - $3978",
-                Revolver = "[Revolver] - $1379",
-                ["Tact SG"] = "[TacticalShotgun] - $1857",
-            },
-            Ammo = {
-                ["LMG Ammo"] = "200 [LMG Ammo] - $318",
-                ["Revolver Ammo"] = "12 [Revolver Ammo] - $80",
-                ["Tact SG Ammo"] = "20 [TacticalShotgun Ammo] - $64",
-            },
-            Armor = {
-                Medium = "[Medium Armor] - $1061",
-                ["High Medium"] = "[High-Medium Armor] - $2440",
-            },
-            Food = {
-                Chicken = "[Chicken] - $7",
-                Pizza = "[Pizza] - $5",
-            },
-        }
-
-        return itemNames[category] and itemNames[category][itemType]
-    end
-
-    local function autoBuy(category, itemList)
-        if type(itemList) ~= "table" then
-            itemList = { itemList }
-        end
-
-        for _, itemType in ipairs(itemList) do
-            local itemName = getItemName(itemType, category)
-            if itemName then
-                local item = shop:FindFirstChild(itemName)
-                if item and item:FindFirstChild("ClickDetector") then
-                    local firstWord = itemType:match("^(%S+)")
-                    if firstWord and not itemName:lower():find(firstWord:lower(), 1, true) then
-                        return 
-                    end
-
-                    local currentTime = os.clock()
-                    if currentTime - lastPurchaseTime >= atlas.Misc.Extras.AutoBuyWhenNear.Cooldown then
-                        fireclickdetector(item.ClickDetector)
-                        lastPurchaseTime = currentTime
-                    end
-                end
-            end
-        end
-    end
-
-    RunService.PostSimulation:Connect(function()
-        if not atlas.Misc.Extras.AutoBuyWhenNear or not atlas.Misc.Extras.AutoBuyWhenNear.Enabled then
-            return
-        end
-
-        autoBuy("Guns", atlas.Misc.Extras.AutoBuyWhenNear.Guns)
-        autoBuy("Ammo", atlas.Misc.Extras.AutoBuyWhenNear.Ammo)
-        autoBuy("Armor", atlas.Misc.Extras.AutoBuyWhenNear.Armor)
-        autoBuy("Food", atlas.Misc.Extras.AutoBuyWhenNear.Food)
-        autoBuy("Misc", atlas.Misc.Extras.AutoBuyWhenNear.Misc)
-    end)
-end
-
-RunService.Heartbeat:Connect(function()
-    local Position, OnScreen = Camera:WorldToViewportPoint(Client.Character:WaitForChild("HumanoidRootPart").Position + (Client.Character:WaitForChild("HumanoidRootPart").AssemblyLinearVelocity * 0.1))
-
-    if atlas.Misc['Anti Lock']['Show Visualization'].Enabled and OnScreen and atlas.Misc['Anti Lock']['Show Visualization'].Type == "Dot" then
-        drawings.SelfTracerLine.Visible = false
-        drawings.SelfDotCircle.Visible = true
-        drawings.SelfDotCircle.Position = Vector2.new(Position.X, Position.Y)
-    elseif atlas.Misc['Anti Lock']['Show Visualization'].Enabled and OnScreen and atlas.Misc['Anti Lock']['Show Visualization'].Type == "Line" then
-        drawings.SelfTracerLine.Visible = true
-        drawings.SelfDotCircle.Visible = false
-        drawings.SelfTracerLine.From = UserInputService:GetMouseLocation()
-        drawings.SelfTracerLine.To = Vector2.new(Position.X, Position.Y)
-    else
-        drawings.SelfTracerLine.Visible = false
-        drawings.SelfDotCircle.Visible = false
-    end
-end)
-
-local bullet_path = workspace:FindFirstChild("Ignored") or workspace:FindFirstChild("Ignored") and workspace.Ignored:FindFirstChild("Siren") and workspace.Ignored.Siren:FindFirstChild("Radius") or nil
 local function CreateBeam(from,to,color_1,color_2,duration,fade_enabled,fade_duration)
     local tween
     local total_time = 0
@@ -986,7 +802,7 @@ local function SirenAdded(Obj)
                 local Attachment0 = GunBeam.Attachment0 
                 local Attachment1 = GunBeam.Attachment1 
 
-                if getgenv().enabledetections and atlas.Misc.Extras.Gun['Bullet Tracers'].Enabled and Attachment1 then
+                if atlas.Misc.Extras.Gun.Enabled and atlas.Misc.Extras.Gun["Bullet Tracers"].Enabled and Attachment1 then
                     GunBeam:Destroy()
                     CreateBeam(BulletRay.Position, Attachment1.WorldCFrame.Position, atlas.Misc.Extras.Gun['Bullet Tracers'].Color, atlas.Misc.Extras.Gun['Bullet Tracers'].Color, atlas.Misc.Extras.Gun['Bullet Tracers'].Duration)
                 end
@@ -1012,7 +828,7 @@ task.spawn(function()
         end
 
         local tool = clientCharacter:FindFirstChildWhichIsA("Tool")
-        if tool and getgenv().enabledetections and atlas.Misc.Extras.Gun['Bullet Tracers'].Enabled then
+        if tool and atlas.Misc.Extras.Gun.Enabled and atlas.Misc.Extras.Gun['Bullet Tracers'].Enabled then
             local ammo = tool:FindFirstChild("Ammo")
             if ammo then
                 globalEnv.Loop = ammo.Changed:Connect(function()
@@ -1037,11 +853,105 @@ task.spawn(function()
     end
 end)
 
+PlaySound = function(SoundId, Pitch)
+    local Sound = Instance.new("Sound")
+    Sound.Parent = Camera
+    Sound.Volume = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Volume
+    Sound.SoundId = SoundId
+    Sound.PlaybackSpeed = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Pitch 
+
+    local DistortionEffect = Instance.new("DistortionSoundEffect")
+    DistortionEffect.Parent = Sound
+    DistortionEffect.Level = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Distortion
+
+    Sound:Play()
+
+    Sound.Ended:Connect(function()
+        Sound:Destroy()
+    end)
+end
+
+do
+    Hitsounds = {
+        ["Hentai"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/raw/refs/heads/master/hentai2.mp3",
+        ["ComboBreak"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/raw/refs/heads/master/combobreak.wav",
+        ["ApplePay"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/raw/refs/heads/master/applepay.wav",
+        ["Atony"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/raw/refs/heads/master/stony.wav",
+        ["Amongus"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/raw/refs/heads/master/amongus_kill.wav",
+        ["Bell"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/bell.wav?raw=true",
+        ["Bubble"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/bubble.wav?raw=true",
+        ["Cock"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/cock.wav?raw=true",
+        ["Fatality"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/fatality.wav?raw=true",
+        ["Phonk"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/phonk.wav?raw=true",
+        ["Sparkle"] = "https://github.com/nyulachan/nyula/blob/main/Sounds/sparkle.wav?raw=true",
+        ["Neverlose"] = "https://github.com/LionTheGreatRealFrFr/hitsounds1/blob/master/neverlose.wav?raw=true",
+        ["Skeet"] = "https://github.com/DetainedMonkey2891/Skeet/blob/main/Skeet.wav?raw=true"
+    }
+
+    if not isfolder("hitsounds_stuff") then
+        makefolder("hitsounds_stuff")
+    end
+
+    for Name, Url in pairs(Hitsounds) do
+        local Path = "hitsounds_stuff" .. "/" .. Name
+        if not isfile(Path) then
+            writefile(Path, game:HttpGet(Url))
+        end
+    end
+end
+
+function characterClone(Player, Color, Material, Transparency, Parent)
+    for i,v in pairs(Player.Character:GetChildren()) do 
+        if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then 
+            if v.Name == "UpperTorso" or v.Name == "LowerTorso" then 
+                local ClonedPart = Instance.new("Part")
+                ClonedPart.Anchored = true 
+                ClonedPart.CanCollide = false 
+                ClonedPart.Position = v.Position
+                ClonedPart.Parent = Parent
+                ClonedPart.Material = Enum.Material[Material]
+                ClonedPart.Transparency = Transparency 
+                ClonedPart.Color = Color
+                ClonedPart.Size = v.Size + Vector3.new(0.01,0.01,0.01)
+                ClonedPart.Name = v.Name
+                ClonedPart.Rotation = v.Rotation
+                ClonedPart.Shape = "Block"
+            else 
+                local ClonedPart = Instance.new("MeshPart")
+                ClonedPart.Anchored = true 
+                ClonedPart.CanCollide = false 
+                ClonedPart.Position = v.Position
+                ClonedPart.Parent = Parent
+                ClonedPart.Material = Enum.Material[Material]
+                ClonedPart.Transparency = Transparency 
+                ClonedPart.Color = Color
+                ClonedPart.Size = v.Size + Vector3.new(0.01,0.01,0.01)
+                ClonedPart.Name = v.Name
+                ClonedPart.Rotation = v.Rotation
+                ClonedPart.MeshId = v.MeshId
+            end 
+        end 
+    end
+end 
+
+GetGunName = function(Name)
+    local split = string.split(string.split(Name, "[")[2], "]")[1]
+    return split
+end
+
+GetCurrentWeaponName = function()
+    if Client.Character and Client.Character:FindFirstChildWhichIsA("Tool") then
+       local Tool = Client.Character:FindFirstChildWhichIsA("Tool")
+       if string.find(Tool.Name, "%[") and string.find(Tool.Name, "%]") and not string.find(Tool.Name, "Wallet") and not string.find(Tool.Name, "Phone") then
+          return GetGunName(Tool.Name)
+       end
+    end
+    return nil
+end
+
 local function handleHitmarker(plr, char)
     local humanoid = char:FindFirstChild("Humanoid")
-    if not humanoid then
-        return
-    end
+    if not humanoid then return end
 
     local oldhealth = humanoid.Health
     local connection
@@ -1050,33 +960,35 @@ local function handleHitmarker(plr, char)
         if health < oldhealth then
             local damage = oldhealth - health 
 
-            if TargetPlayer and plr == TargetPlayer then
-                if atlas and atlas.Misc and atlas.Misc.Extras and atlas.Misc.Extras.Gun then
-                    if atlas.Misc.Extras.Gun.Enabled and atlas.Misc.Extras.Gun['Hit Detection'] and atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'] and atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled then
-                        local soundName = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds
-                        local soundID = SavesXd.HitSounds and SavesXd.HitSounds[soundName]
-                        
-                        if soundID and game.Workspace.CurrentCamera then
-                            local sound = Instance.new("Sound")
-                            sound.Parent = game.Workspace.CurrentCamera
-                            sound.SoundId = soundID
-                            sound.Volume = 10
-                            sound:Play()
-                            task.delay(10, function()
-                                if sound and sound.Parent then
-                                    sound:Destroy()
-                                end
-                            end)
-                        end
-                    end
+            if TargetPlayer and plr == TargetPlayer and atlas and atlas.Misc and atlas.Misc.Extras and atlas.Misc.Extras.Gun then
+                local gunSettings = atlas.Misc.Extras.Gun['Hit Detection']
+                
+                if gunSettings and gunSettings['Sound Detection'] and gunSettings['Sound Detection'].Enabled then
+                    local soundName = gunSettings['Sound Detection'].Sounds
+                    local V = gunSettings['Sound Detection'].Volume
 
-                    if atlas.Misc.Extras.Gun.Enabled and atlas.Misc.Extras.Gun['Hit Detection'] and atlas.Misc.Extras.Gun['Hit Detection']['Log Detection'] then
-                        if math.floor(health) > 0 then
-                            local hitPart = atlas['Target Aimbot'] and atlas['Target Aimbot'].AimPart or "Unknown"
-                            if TargetPlayer and TargetPlayer.DisplayName then
-                                Library:Notify("Hit " .. TargetPlayer.DisplayName .. " in the " .. hitPart .. " for " .. math.floor(damage) .. " damage",2)
-                            end
-                        end
+                    local Sound = string.format("hitsounds_stuff/%s", soundName)
+                    PlaySound(getcustomasset(Sound), V)
+                end
+
+                if gunSettings and gunSettings['Hit Chams'] and gunSettings['Hit Chams'].Enabled then 
+                    local Model = Instance.new("Model", drawings.IgnoreAtlasF) 
+                    characterClone(TargetPlayer, 
+                        gunSettings['Hit Chams'].Color, 
+                        gunSettings['Hit Chams'].Material, 
+                        0.5, Model
+                    )
+
+                    task.wait(gunSettings['Hit Chams'].Duration)
+                    Model:Destroy()
+                end
+
+                if gunSettings and gunSettings['Log Detection'] then
+                    local hitPart = atlas['Target Aimbot'] and atlas['Target Aimbot'].AimPart or "Unknown Part"
+                    local EquippedWeapon = GetCurrentWeaponName(Client) or "Unknown Weapon"
+
+                    if TargetPlayer and TargetPlayer.DisplayName and math.floor(health) > 0 then
+                        Library:Notify("HIT " .. TargetPlayer.DisplayName .. " IN THE " .. hitPart .. " BY A " .. EquippedWeapon, 2)
                     end
                 end
             end
@@ -1105,10 +1017,6 @@ for _, plr in pairs(Players:GetPlayers()) do
 end
 
 Players.PlayerAdded:Connect(setupHitmarker)
-
-if bullet_path and bullet_path:IsA("Folder") then
-    bullet_path.ChildAdded:Connect(SirenAdded)
-end
 
 local CROSSHAIR_SPACING = 5
 local CROSSHAIR_LENGTH = 100
@@ -1192,7 +1100,7 @@ local function createCrosshair()
         crosshairHorizontal2.To = mousePosition + h2End
     end
 
-    RunService.RenderStepped:Connect(function(dt)
+    RunService:BindToRenderStep("UpdateRotation", Enum.RenderPriority.Camera.Value, function(dt)
         updateCrosshair(dt)
     end)
 end
@@ -1205,6 +1113,7 @@ local function removeCrosshair()
     
     crosshairActive = false
 end
+
 UserInputService.InputBegan:Connect(function(input)
     if crosshairActive and input.UserInputType == Enum.UserInputType.MouseButton1 then
         return
@@ -1214,7 +1123,7 @@ end)
 local previousTargetCharacter = nil
 local clientHumanoidRootPart = nil
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateAimBotStrafe", Enum.RenderPriority.Camera.Value, function()
     local targetAimbot = atlas['Target Aimbot']
     if not (targetAimbot and targetAimbot.Enabled) then return end
     
@@ -1249,57 +1158,6 @@ RunService.Heartbeat:Connect(function()
         previousTargetCharacter = targetCharacter
     end
 end)
-
-RunService.Heartbeat:Connect(function()
-    local config = atlas.Misc['Anti Lock']
-    
-    if config.Enabled then
-        local humanoidRootPart = Client.Character:WaitForChild("HumanoidRootPart")
-        local vel = humanoidRootPart.Velocity
-        
-        if config.Type == "Sky" then
-            humanoidRootPart.Velocity = Vector3.new(0, 90, 0)
-            RunService.RenderStepped:Wait()
-            humanoidRootPart.Velocity = vel
-        end
-        
-        if config.Type == "UnderGround" then
-            humanoidRootPart.Velocity = Vector3.new(0, -90, 0)
-            RunService.RenderStepped:Wait()
-            humanoidRootPart.Velocity = vel
-        end
-
-        if config.Type == "Pred Breaker" then
-            humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-            RunService.RenderStepped:Wait()
-            humanoidRootPart.Velocity = vel
-        end
-        
-        if config.Type == "Pred Multiplier" then
-            humanoidRootPart.Velocity = vel * 30
-            RunService.RenderStepped:Wait()
-            humanoidRootPart.Velocity = vel
-        end
-
-        if config.Type == "None" then 
-            config.Enabled = false 
-        end
-
-        if config.Type == "Random" then
-            local randomVelocity = Vector3.new(
-                math.random(1, 16384),
-                math.random(1, 16384),
-                math.random(1, 16384)
-            )
-            humanoidRootPart.Velocity = vel * 0 + randomVelocity
-            humanoidRootPart.AssemblyLinearVelocity = vel * 0 + randomVelocity
-            RunService.RenderStepped:Wait()
-            humanoidRootPart.Velocity = vel
-            humanoidRootPart.AssemblyLinearVelocity = vel
-        end
-    end
-end)
-
 local LineColor = Color3.fromRGB(84, 101, 255)
 
 local TargetLine = Instance.new("Part")
@@ -1334,7 +1192,7 @@ local function updateTargetLine(character, mousePosition)
     end
 end
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateAimView", Enum.RenderPriority.Camera.Value, function()
     TargetLine.Color = LineColor 
     if enableaimviewweta and TargetPlayer and TargetPlayer.Character then
         local bodyEffects = TargetPlayer.Character:FindFirstChild("BodyEffects")
@@ -1346,6 +1204,24 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
+local previousSubject
+
+RunService.PostSimulation:Connect(function()
+    local settings = atlas['Target Aimbot']
+    local newSubject = Client.Character 
+
+    if TargetPlayer and TargetPlayer.Character then
+        if settings.View then
+            newSubject = TargetPlayer.Character
+        end
+    end
+
+    if Camera.CameraSubject ~= newSubject then
+        Camera.CameraSubject = newSubject
+        Assets.OtherStored.originalProperties = newSubject
+    end
+end)
+
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local function onCharacterAdded(newCharacter)
@@ -1353,7 +1229,7 @@ local function onCharacterAdded(newCharacter)
 end
 Client.CharacterAdded:Connect(onCharacterAdded)
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateAutoShootCSync", Enum.RenderPriority.Camera.Value, function()
     if not Character then return end
 
     local tool = Character:FindFirstChildWhichIsA("Tool")
@@ -1382,7 +1258,7 @@ local function updateShootSound()
     for _, v in pairs(Character:GetDescendants()) do 
         if v:IsA("Sound") and v.Name == "ShootSound" then 
             v.SoundId = GunS
-            v.Volume = 1
+            v.Volume = 5
         end 
     end
 end
@@ -1507,9 +1383,6 @@ local function CframeDesyncHelloSkids()
     elseif enabled.Type == "Void" then
         impostorDummyCFrame = attach.CFrame * CFrame.new(0 / 0, 1, math.huge)
     
-    elseif enabled.Type == "Void Spam" then
-        impostorDummyCFrame = should_be_voided and attach.CFrame * CFrame.new(0, 0/1, math.huge) or attach.CFrame
-    
     elseif enabled.Type == "Strafe" then
         local targetRoot = attach and attach.Parent and attach.Parent:FindFirstChild("HumanoidRootPart")
         if targetRoot then
@@ -1518,8 +1391,8 @@ local function CframeDesyncHelloSkids()
         end
     end    
 
-    visualizeChams.FillColor = enabled['Visualize'].FillColor
-    visualizeChams.OutlineColor = enabled['Visualize'].OutlineColor
+    visualizeChams.FillColor = enabled['Visualize'].DummyColor
+    visualizeChams.OutlineColor = enabled['Visualize'].DummyColor
 
     if enabled['Visualize'].Enabled then
         if enabled['Visualize'].Type == 'Dummy' then
@@ -1539,6 +1412,7 @@ local function CframeDesyncHelloSkids()
             local desyncedPos = Camera:WorldToViewportPoint(impostorDummyCFrame.Position)
             drawings.CFrameDesyncDot.Visible = true
             drawings.CFrameDesyncDot.Position = Vector2.new(desyncedPos.X, desyncedPos.Y)
+            drawings.CFrameDesyncDot.Color = enabled['Visualize'].DotColor
         else
             drawings.CFrameDesyncDot.Visible = false
         end
@@ -1549,6 +1423,7 @@ local function CframeDesyncHelloSkids()
             drawings.CFrameDesyncTracer.Visible = true
             drawings.CFrameDesyncTracer.From = Vector2.new(hrpPos.X, hrpPos.Y)
             drawings.CFrameDesyncTracer.To = Vector2.new(desyncedPos.X, desyncedPos.Y)
+            drawings.CFrameDesyncTracer.Color = enabled['Visualize'].LineColor
         else
             drawings.CFrameDesyncTracer.Visible = false
         end
@@ -1563,15 +1438,11 @@ local function CframeDesyncHelloSkids()
     humanoidRootPart.CFrame = originalCFrame
 end
 
-RunService.Heartbeat:Connect(function()
-    CframeDesyncHelloSkids()
-end)
-
 task.spawn(function()
-	while task.wait(0.1) do
-		should_be_voided = not should_be_voided
-        should_be_randomed = not should_be_randomed
-	end
+    while true do
+        task.wait(0.0001) 
+        CframeDesyncHelloSkids()
+    end
 end)
 
 local originalCFrame
@@ -1598,7 +1469,7 @@ end))
 local originalNewIndex
 originalNewIndex = hookmetamethod(game, "__newindex", function(object, property, value)
     local callingScript = getcallingscript()
-    local Camera = workspace.CurrentCamera 
+    local Camera = workspace.CurrentCamera
 
     if callingScript and callingScript.Name == "Framework" and object == Camera and property == "CFrame" and atlas and atlas.Misc and atlas.Misc['No Recoil'] then
         return
@@ -1693,7 +1564,7 @@ function ToolAmmo(Name)
     end
 end
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateReload", Enum.RenderPriority.Camera.Value, function()
     if not atlas.Misc['Auto Reload'] then
         return
     end
@@ -1712,7 +1583,7 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService:BindToRenderStep("UpdateCamera", Enum.RenderPriority.Camera.Value, function()
     if TargetPlayer and TargetPlayer.Character then
         local character = TargetPlayer.Character
         local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -1731,7 +1602,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateSlow", Enum.RenderPriority.Camera.Value, function()
     if not (atlas.Misc['Anti Slow']) then
         return
     end
@@ -1765,7 +1636,7 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-RunService.Heartbeat:Connect(function()
+--[[RunService:BindToRenderStep("UpdateJumpC", Enum.RenderPriority.Camera.Value, function()
     local humanoid = Client.Character:WaitForChild("Humanoid")
 
     if not humanoid then
@@ -1775,53 +1646,65 @@ RunService.Heartbeat:Connect(function()
     humanoid.UseJumpPower = not getgenv().nojumpcooldown
 
     task.wait()
+end)--]]
+
+task.spawn(function()
+    while true do
+        task.wait(0.01) 
+        local humanoid = Client.Character:WaitForChild("Humanoid")
+
+        if not humanoid then
+            return
+        end
+    
+        humanoid.UseJumpPower = not getgenv().nojumpcooldown
+    end
 end)
 
 local function AnimPlay(ID, SPEED)
-    if SavesXd.currentAnimation then
-        SavesXd.currentAnimation:Stop()
+    if Assets.AnimationStored.currentAnimation then
+        Assets.AnimationStored.currentAnimation:Stop()
     end
 
     local animation = Instance.new('Animation')
     animation.AnimationId = 'rbxassetid://' .. ID
 
     if Client.Character and Client.Character:FindFirstChild("Humanoid") then
-        SavesXd.currentAnimation = Client.Character.Humanoid:LoadAnimation(animation)
+        Assets.AnimationStored.currentAnimation = Client.Character.Humanoid:LoadAnimation(animation)
         
-        SavesXd.currentAnimation.Priority = Enum.AnimationPriority.Action
+        Assets.AnimationStored.currentAnimation.Priority = Enum.AnimationPriority.Action
         
-        SavesXd.currentAnimation:Play()
-        SavesXd.currentAnimation:AdjustSpeed(SPEED)
+        Assets.AnimationStored.currentAnimation:Play()
+        Assets.AnimationStored.currentAnimation:AdjustSpeed(SPEED)
     end
 
-    SavesXd.currentAnimationID = ID
-    SavesXd.currentSpeed = SPEED
+    Assets.AnimationStored.currentAnimationID = ID
+    Assets.AnimationStored.currentSpeed = SPEED
 end
 
 local function handleAnimation()
     if atlas.Animations.Enabled then
-        local selectedDance = SavesXd.Dances[atlas.Animations.Animation]
+        local selectedDance = Assets.DancesStored.Dances[atlas.Animations.Animation]
         local newSpeed = tonumber(atlas.Animations.Speed)
 
-        if selectedDance and (not SavesXd.currentAnimation or not SavesXd.currentAnimation.IsPlaying or SavesXd.currentAnimationID ~= selectedDance or SavesXd.currentSpeed ~= newSpeed) then
+        if selectedDance and (not Assets.AnimationStored.currentAnimation or not Assets.AnimationStored.currentAnimation.IsPlaying or Assets.AnimationStored.currentAnimationID ~= selectedDance or Assets.AnimationStored.currentSpeed ~= newSpeed) then
             AnimPlay(selectedDance, newSpeed)
         end
     else
-        if SavesXd.currentAnimation then
-            SavesXd.currentAnimation:Stop()
-            SavesXd.currentAnimation = nil
-            SavesXd.currentAnimationID = nil
-            SavesXd.currentSpeed = nil
-            print("[debug]: 11")
+        if Assets.AnimationStored.currentAnimation then
+            Assets.AnimationStored.currentAnimation:Stop()
+            Assets.AnimationStored.currentAnimation = nil
+            Assets.AnimationStored.currentAnimationID = nil
+            Assets.AnimationStored.currentSpeed = nil
         end
     end
 end
 
 Client.CharacterAdded:Connect(function(character)
     character:WaitForChild("Humanoid")
-    SavesXd.currentAnimation = nil
-    SavesXd.currentAnimationID = nil
-    SavesXd.currentSpeed = nil
+    Assets.AnimationStored.currentAnimation = nil
+    Assets.AnimationStored.currentAnimationID = nil
+    Assets.AnimationStored.currentSpeed = nil
     RunService.Heartbeat:Connect(handleAnimation)
 end)
 
@@ -1859,7 +1742,7 @@ RunService.Heartbeat:Connect(handleAnimation)
 local savedAnimations = {}
 local humanoid, animator
 
-RunService.RenderStepped:Connect(function()
+RunService:BindToRenderStep("UpdateAnimationNone", Enum.RenderPriority.Camera.Value, function()
     if not Character then return end
 
     humanoid = Character:FindFirstChildOfClass("Humanoid")
@@ -1899,7 +1782,7 @@ end)
 
 getgenv().jitterDelay = 5
 
-RunService.RenderStepped:Connect(function()
+RunService:BindToRenderStep("UpdateAA", Enum.RenderPriority.Camera.Value, function()
     if getgenv().spinbot and getgenv().enableantiaim then
         Client.Character.Humanoid.AutoRotate = true
         Client.Character:WaitForChild("HumanoidRootPart").CFrame = Client.Character:WaitForChild("HumanoidRootPart").CFrame * CFrame.Angles(0, math.rad(getgenv().spinbotspeed), 0)
@@ -1926,7 +1809,7 @@ local function AutoBuyArmor()
             end
 
             local Character = Client.Character
-            if not Character then print("[debug]: 6") return end
+            if not Character then return end
 
             local Armor = Character:FindFirstChild("BodyEffects") and Character.BodyEffects:FindFirstChild("Armor")
             if not Armor then continue end
@@ -1972,19 +1855,18 @@ Client.CharacterAdded:Connect(function()
     AutoBuyArmor()
 end)
 
-RunService.Stepped:Connect(function()
-    local movementConfig = atlas.Misc['Movement Speed'].CFrame
+RunService:BindToRenderStep("UpdateSpeed", Enum.RenderPriority.Camera.Value, function()
+    local movementConfig = atlas.Misc['Movement Speed']
     if movementConfig.Enabled then
-        local character = Client.Character
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid and humanoid.MoveDirection.Magnitude > 0 then
-            local speed = movementConfig.Speed + math.random(-1, 1) * 0.5
-            character:TranslateBy(humanoid.MoveDirection.Unit * (speed))
+            local humanoid = Character:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.MoveDirection.Magnitude > 0 then
+                local speed = movementConfig.CFrameSpeed + math.random(-1, 1) * 0.5
+                Character:TranslateBy(humanoid.MoveDirection.Unit * speed)
+            end
         end
-    end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService:BindToRenderStep("UpdateFly", Enum.RenderPriority.Camera.Value, function()
     local movementConfig = atlas.Misc.Fly
     if movementConfig.Enabled and Client and Client.Character then
         local character = Client.Character
@@ -2019,20 +1901,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-function reset_wrld()
-    game.Lighting.ClockTime = Assets.Stored.ClockTime
-    game.Lighting.OutdoorAmbient = Assets.Stored.OutdoorAmbient
-    game.Lighting.Ambient = Assets.Stored.Ambient
-    game.Lighting.Brightness = Assets.Stored.Brightness
-    game.Lighting.FogColor = Assets.Stored.FogColor
-    game.Lighting.FogStart = Assets.Stored.FogStart
-    game.Lighting.FogEnd = Assets.Stored.FogEnd
-    game.Lighting.ColorShift_Top = Assets.Stored.ColorShift_Top
-    game.Lighting.ColorShift_Bottom = Assets.Stored.ColorShift_Bottom
-    game.Lighting.Technology = Assets.Stored.Technology_Old
-end
-
-function world_esp()
+--[[function world_esp()
     if atlas.Misc.Extras.World.Enabled then
         game.Lighting.ClockTime = atlas.Misc.Extras.World.Time
         if atlas.Misc.Extras.World.Ambience.Enabled then
@@ -2068,11 +1937,61 @@ function world_esp()
     else
         reset_wrld()
     end
-end
+end--]]
 
-RunService.RenderStepped:Connect(function()
-    world_esp()
+task.spawn(function()
+    while true do
+        task.wait(0.01) 
+        if atlas.Misc.Extras.World.Enabled then
+            game.Lighting.ClockTime = atlas.Misc.Extras.World.Time
+            if atlas.Misc.Extras.World.Ambience.Enabled then
+                game.Lighting.OutdoorAmbient = atlas.Misc.Extras.World.Ambience.Color.Outside
+                game.Lighting.Ambient = atlas.Misc.Extras.World.Ambience.Color.Indoor
+                game.Lighting.ColorShift_Top = atlas.Misc.Extras.World.Ambience.Color.Outside
+                game.Lighting.ColorShift_Bottom = atlas.Misc.Extras.World.Ambience.Color.Indoor
+            else
+                game.Lighting.OutdoorAmbient = Assets.WorldStored.OutdoorAmbient
+                game.Lighting.Ambient = Assets.WorldStored.Ambient
+                game.Lighting.ColorShift_Top = Assets.WorldStored.ColorShift_Top
+                game.Lighting.ColorShift_Bottom = Assets.WorldStored.ColorShift_Bottom
+            end
+            if atlas.Misc.Extras.World.Brightness.Enabled then
+                game.Lighting.Brightness = atlas.Misc.Extras.World.Brightness.Amount
+            else
+                game.Lighting.Brightness = Assets.WorldStored.Brightness
+            end
+            if atlas.Misc.Extras.World.Technology.Enabled then 
+                game.Lighting.Technology = atlas.Misc.Extras.World.Technology.Type
+            else
+                game.Lighting.Technology = Assets.WorldStored.Technology_Old
+            end
+            if atlas.Misc.Extras.World.Fog.Enabled then
+                game.Lighting.FogColor = atlas.Misc.Extras.World.Fog.Color
+                game.Lighting.FogStart = atlas.Misc.Extras.World.Fog.Start
+                game.Lighting.FogEnd = atlas.Misc.Extras.World.Fog.End
+            else
+                game.Lighting.FogColor = Assets.WorldStored.FogColor
+                game.Lighting.FogStart = Assets.WorldStored.FogStart
+                game.Lighting.FogEnd = Assets.WorldStored.FogEnd
+            end
+        else
+            game.Lighting.ClockTime = Assets.WorldStored.ClockTime
+            game.Lighting.OutdoorAmbient = Assets.WorldStored.OutdoorAmbient
+            game.Lighting.Ambient = Assets.WorldStored.Ambient
+            game.Lighting.Brightness = Assets.WorldStored.Brightness
+            game.Lighting.FogColor = Assets.WorldStored.FogColor
+            game.Lighting.FogStart = Assets.WorldStored.FogStart
+            game.Lighting.FogEnd = Assets.WorldStored.FogEnd
+            game.Lighting.ColorShift_Top = Assets.WorldStored.ColorShift_Top
+            game.Lighting.ColorShift_Bottom = Assets.WorldStored.ColorShift_Bottom
+            game.Lighting.Technology = Assets.WorldStored.Technology_Old
+        end
+    end
 end)
+
+--[[RunService:BindToRenderStep("UpdateWorld", Enum.RenderPriority.Camera.Value, function()
+    world_esp()
+end)--]]
 
 local function GetTool()
     local Tool = nil 
@@ -2096,7 +2015,7 @@ local og_props = {}
 local removed_clothes = {}
 local gun_og_props = {}
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdateSelf", Enum.RenderPriority.Camera.Value, function()
     if atlas.Misc.Extras.World.Enabled and atlas.Misc.Extras.World['Self Chams'].Enabled and Character then
         local hasTool = false
 
@@ -2163,8 +2082,8 @@ RunService.Heartbeat:Connect(function()
     end       
 end)
 
-RunService.Heartbeat:Connect(function()
-local Gun = GetTool(Gun)
+RunService:BindToRenderStep("UpdateGun", Enum.RenderPriority.Camera.Value, function()
+    local Gun = GetTool(Gun)
 if atlas.Misc.Extras.Gun['Gun Chams'].Enabled and Character and Gun then
     for _, v in pairs(Gun:GetChildren()) do
         if v:IsA('MeshPart') or v:IsA('BasePart') then
@@ -2233,11 +2152,11 @@ GetPrediction = function()
             return tonumber(0.1 + (PingNumber / 2000) + ((PingNumber / 1000) * (PingNumber / 1500) * 1))
         end
     else
-        return tonumber(SavesXd.value000)
+        return tonumber(Assets.OtherStored.value000)
     end
 end
 
-RunService.Heartbeat:Connect(function()
+RunService:BindToRenderStep("UpdatePredictionAuto", Enum.RenderPriority.Camera.Value, function()
     if atlas['Target Aimbot'].Enabled and atlas['Target Aimbot']["Auto Prediction"].Enabled then 
         atlas['Target Aimbot'].Prediction = GetPrediction()
     end
@@ -2276,9 +2195,10 @@ local function autoselectplayerbruh()
         TargetPlayer = getClosestPlayerToCursor()
         if atlas['Target Aimbot'].Highlight.Enabled and TargetPlayer then 
             LocalHL.Parent = TargetPlayer.Character
-        else 
-            return
         end
+    else
+        atlas['Target Aimbot']['Auto Select'].Enabled = false 
+        TargetL = nil
     end
 end
 
@@ -2319,7 +2239,7 @@ if UserInputService.TouchEnabled then
 end
 
 local delayTime, lastExecutionTime = 0.5, 0
-RunService.RenderStepped:Connect(function()
+RunService:BindToRenderStep("UpdateAutoSelect", Enum.RenderPriority.Camera.Value, function()
     if atlas['Target Aimbot']['Auto Select'].Enabled and atlas['Target Aimbot'].Enabled then
         local currentTime = tick()
         if currentTime - lastExecutionTime >= atlas['Target Aimbot']['Auto Select'].Delay then
@@ -2374,14 +2294,11 @@ if config.uienabled then
     local h = Tabs.haha:AddRightTabbox()
     local helloworldstfu = Tabs.hmmm:AddLeftTabbox()
     local urrr = Tabs.tast:AddLeftTabbox()
-    local movebruh = Tabs.tast:AddRightTabbox()
     local ightbruhthesetheopps = Tabs.nenene:AddLeftTabbox()
     local buymenowplss = Tabs.nenene:AddRightTabbox()
     local lookatme = Tabs.hmmm:AddRightTabbox()
-    local akhdskjd = Tabs.nenene:AddLeftTabbox()
     local fakeanimas = TabBox17:AddTab('Emote Spam')
     local ingamean = TabBox17:AddTab('Animations')
-    local movebruh1 = movebruh:AddTab('Movement')
     local antiautolo = antiatuololxd:AddTab('Disablers')
     local othermods = antiatuololxd:AddTab('Characters')
     local antiaiminglol = antiatuololxd:AddTab('Anti-Aim')
@@ -2393,69 +2310,59 @@ if config.uienabled then
     local visualsui2 = h:AddTab('FOV')
     local colorconfigs = h:AddTab('Color Config')
     local playersaretheopps = ightbruhthesetheopps:AddTab('Players')
-    local extrastuff = akhdskjd:AddTab('Auto Buy')
-    local buyingtheseguns = buymenowplss:AddTab('Buys')
+    local buyingtheseguns = buymenowplss:AddTab('Auto Buy')
     local crosshandle = helloworldstfu:AddTab('Crosshair')
+    local niggermainscreengui = helloworldstfu:AddTab('HUD')
     local selfextras = lookatme:AddTab('On Hit')
     local selfgunned = lookatme:AddTab('Gun')
     local worldlights = lookatme:AddTab('World')
-    local velocityspoofer = urrr:AddTab('Velocity Spoofer')
     local CframeDesyncXD = urrr:AddTab('CFrame Desync')
-    local SelectedTarget = nil
-    local TargetLabel = playersaretheopps:AddLabel('Selected Player: None')
-
-    local function UpdateLabel(player)
-        local LabelText = 'Selected Player: ' .. (player and player.Name or 'None')
-        TargetLabel:SetText(LabelText)
-    end
-
-    playersaretheopps:AddInput('autopredtext', {
-        Default = nil,
-        Numeric = false, 
-        Finished = false, 
-        Text = 'Search for Player',
-        Tooltip = '', 
-        Placeholder = '', 
-        Callback = function(searchQuery)
-            searchQuery = searchQuery:lower()
+    local movebruh1 = urrr:AddTab('Movement')
     
-            local function FindPlayer(query)
-                if query == '' then
-                    return nil
-                end
-                
-                for _, player in ipairs(Players:GetPlayers()) do
-                    if player ~= Client and (player.Name:lower():find(query, 1, true) or (player.DisplayName and player.DisplayName:lower():find(query, 1, true))) then
-                        return player
-                    end
-                end
-                return nil
-            end
-            
-            local player = FindPlayer(searchQuery)
-            
-            if player then
-                SelectedTarget = player
-                UpdateLabel(player)
-            else
-                SelectedTarget = nil
-                UpdateLabel(nil)
-            end
+    playersaretheopps:AddDropdown('MyPlayerDropdown', {
+        SpecialType = 'Player',
+        Text = 'Player List',
+        Tooltip = 'Select a Player ',
+        Callback = function(Value)
+            TargetV = Value
         end
     })
+
+    playersaretheopps:AddToggle('dotenable', {
+        Text = 'Highlight',
+        Default = false, 
+        Tooltip = '',
+    })
+    
+    Toggles.dotenable:OnChanged(function(bool)
+        atlas.Debugger.Highlight = bool
+        if atlas.Debugger.Highlight then 
+            local targetPlayer = Players[TargetV]
+            if not targetPlayer then
+                return
+            end
+            if drawings.TargetHighlight.Parent ~= targetPlayer.Character then
+                if targetPlayer.Character then 
+                    drawings.TargetHighlight.Parent = targetPlayer.Character
+                    drawings.TargetHighlight.FillColor = Color3.new(1, 1, 1) 
+                    drawings.TargetHighlight.OutlineColor = Color3.new(1, 1, 1)
+                else
+                    return
+                end
+            end
+        else
+            if drawings.TargetHighlight.Parent ~= game.CoreGui then 
+                drawings.TargetHighlight.Parent = game.CoreGui
+            end
+        end        
+    end)
 
     playersaretheopps:AddButton({
         Text = 'Teleport To',
         Func = function()
-            if SelectedTarget and SelectedTarget.Character then
-                local targetHRP = SelectedTarget.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then                    
-                    local clientHRP = Client.Character and Client.Character:FindFirstChild("HumanoidRootPart")
-                    if clientHRP then                        
-                        clientHRP.CFrame = targetHRP.CFrame
-                    end
-                end
-            end            
+            if TargetV then
+                Character.HumanoidRootPart.CFrame = Players[TargetV].Character.HumanoidRootPart.CFrame
+           end           
         end,
         DoubleClick = false,
         Tooltip = ''
@@ -2602,7 +2509,7 @@ if config.uienabled then
         end
         workspace.FallenPartsDestroyHeight = -500 
         task.spawn(function()
-            while task.wait(0.1) do  
+            while task.wait(0.001) do  
                 if getgenv().enableantivoids and Character and Character:FindFirstChild("HumanoidRootPart") and Character.HumanoidRootPart.Position.Y < -450 then
                     Character.HumanoidRootPart.CFrame = oldPosition
                 end
@@ -2817,16 +2724,6 @@ if config.uienabled then
             atlas['Target Aimbot']['Use Camera'].Smoothness = bool
         end
     })
-
-    --[[ohokay:AddToggle('EnablePingPred', {
-        Text = 'bullet tp',
-        Default = atlas.Misc.Extras['Bullet TP'].Enabled, 
-        Tooltip = '',
-    })
-    
-    Toggles.EnablePingPred:OnChanged(function(bool)
-        atlas.Misc.Extras['Bullet TP'].Enabled = bool
-    end)--]]
 
     ohokay:AddToggle('EnablePingPred', {
         Text = 'Auto Prediction',
@@ -3075,13 +2972,13 @@ if config.uienabled then
     })
 
     movebruh1:AddToggle('CFrameSpeed', {
-        Text = 'Cframe Walkspeed',
-        Default = atlas.Misc['Movement Speed'].CFrame.Enabled, 
+        Text = 'Enable Movement Speed',
+        Default = atlas.Misc['Movement Speed'].Enabled, 
         Tooltip = '',
     })
     
     Toggles.CFrameSpeed:OnChanged(function(bool)
-        atlas.Misc['Movement Speed'].CFrame.Enabled = bool
+        atlas.Misc['Movement Speed'].Enabled = bool
     end)
 
     Toggles.CFrameSpeed:AddKeyPicker('AimbotKeyPickerXD', {
@@ -3090,102 +2987,38 @@ if config.uienabled then
     
         Mode = 'Toggle',
     
-        Text = 'C-Frame Speed', 
+        Text = 'Movement Speed', 
         NoUI = false,
     })
     
     Options.AimbotKeyPickerXD:OnClick(function()
         SpeedTrue = not SpeedTrue
-        atlas.Misc['Movement Speed'].CFrame.Enabled = SpeedTrue
+        atlas.Misc['Movement Speed'].Enabled = SpeedTrue
     end) 
+
+    movebruh1:AddDropdown('MyDropdown', {
+        Values = {"CFrame"}, 
+        Default = atlas.Misc['Movement Speed'].Type,
+        Multi = false, 
+        Text = 'Speed Type',
+        Tooltip = '',
+        Callback = function(bool)
+            atlas.Misc['Movement Speed'].Type = bool
+        end 
+    })
     
     movebruh1:AddSlider('CFrameSpeed', {
         Text = 'Cframe Speed',
-        Default = atlas.Misc['Movement Speed'].CFrame.Speed,
+        Default = atlas.Misc['Movement Speed'].CFrameSpeed,
         Min = 0,
         Max = 10,
         Rounding = 3,
         Compact = true,
         Callback = function(bool)
-            atlas.Misc['Movement Speed'].CFrame.Speed = bool
+            atlas.Misc['Movement Speed'].CFrameSpeed = bool
         end
     })
 
-    velocityspoofer:AddToggle('enableantilock', {
-        Text = 'Enable',
-        Default = atlas.Misc['Anti Lock'].Enabled, 
-        Tooltip = '',
-    })
-    
-    Toggles.enableantilock:OnChanged(function(bool)
-        atlas.Misc['Anti Lock'].Enabled = bool
-    end)
-
-    Toggles.enableantilock:AddKeyPicker('AimbotKeyPickerXD', {
-        Default = 'None', 
-        SyncToggleState = true, 
-    
-        Mode = 'Toggle',
-    
-        Text = 'Velocity Spoofer', 
-        NoUI = false,
-    })
-    
-    Options.AimbotKeyPickerXD:OnClick(function()
-        AntiLockTrue = not AntiLockTrue
-        atlas.Misc['Anti Lock'].Enabled = AntiLockTrue
-
-        if atlas.Misc['Anti Lock'].Notify then
-            local status = atlas.Misc['Anti Lock'].Enabled and "Enabled" or "Disabled"
-            Library:Notify("Velocity Spoofer: " .. status, 3)
-        end
-    end) 
-    
-    velocityspoofer:AddToggle('Y', {
-        Text = 'Notify',
-        Default = atlas.Misc['Anti Lock'].Notify, 
-        Tooltip = '',
-    })
-    
-    Toggles.Y:OnChanged(function(bool)
-        atlas.Misc['Anti Lock'].Notify = bool
-    end)
-
-    velocityspoofer:AddToggle('enablevis', {
-        Text = 'Enable Visualization',
-        Default = atlas.Misc['Anti Lock']['Show Visualization'].Enabled, 
-        Tooltip = '',
-    })
-    
-    Toggles.enablevis:OnChanged(function(bool)
-        atlas.Misc['Anti Lock']['Show Visualization'].Enabled = bool
-    end)
-
-    velocityspoofer:AddDropdown('MyDropdown', {
-        Values = {"dot","line"},
-        Default = 2,
-        Multi = false, 
-        Text = 'Visualization Type',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc['Anti Lock']['Show Visualization'].Type = bool        
-        end
-    })
-
-    velocityspoofer:AddDropdown('MyDropdown', {
-        Values = {"None","Pred Multiplier", "Pred Breaker", "UnderGround","Sky","Random"},
-        Default = 6,
-        Multi = false, 
-        Text = 'velocity type',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc['Anti Lock'].Type = bool
-            if bool == "None" then
-                atlas.Misc['Anti Lock'].Enabled = false
-            end           
-        end
-    })
-    
     CframeDesyncXD:AddToggle('enablecframe', {
         Text = 'Enable',
         Default = atlas.Misc['Anti Lock']['C-Sync'].Enabled, 
@@ -3215,24 +3048,6 @@ if config.uienabled then
             Library:Notify("Cframe Desync: " .. status, 3)
         end
     end) 
-
-    CframeDesyncXD:AddLabel('fill color'):AddColorPicker('ColorPicker', {
-        Default = Color3.fromRGB(84, 101, 255),
-        Title = 'Color', 
-    })
-    
-    Options.ColorPicker:OnChanged(function(bool)
-        atlas.Misc['Anti Lock']['C-Sync']['Visualize'].FillColor = bool
-    end)
-
-    CframeDesyncXD:AddLabel('outline color'):AddColorPicker('ColorPicker', {
-        Default = Color3.fromRGB(255, 255, 255),
-        Title = 'Color', 
-    })
-    
-    Options.ColorPicker:OnChanged(function(bool)
-        atlas.Misc['Anti Lock']['C-Sync']['Visualize'].OutlineColor = bool
-    end)
 
     CframeDesyncXD:AddToggle('strafeenable', {
         Text = 'Notify',
@@ -3308,8 +3123,36 @@ if config.uienabled then
         end
     })
 
+    
+    CframeDesyncXD:AddLabel('Dummy Color'):AddColorPicker('ColorPicker', {
+        Default = Color3.fromRGB(84, 101, 255),
+        Title = 'Color', 
+    })
+    
+    Options.ColorPicker:OnChanged(function(bool)
+        atlas.Misc['Anti Lock']['C-Sync']['Visualize'].DummyColor = bool
+    end)
+
+    CframeDesyncXD:AddLabel('Line Color'):AddColorPicker('ColorPicker', {
+        Default = Color3.fromRGB(84, 101, 255),
+        Title = 'Color', 
+    })
+    
+    Options.ColorPicker:OnChanged(function(bool)
+        atlas.Misc['Anti Lock']['C-Sync']['Visualize'].LineColor = bool
+    end)
+
+    CframeDesyncXD:AddLabel('Dot Color'):AddColorPicker('ColorPicker', {
+        Default = Color3.fromRGB(84, 101, 255),
+        Title = 'Color', 
+    })
+    
+    Options.ColorPicker:OnChanged(function(bool)
+        atlas.Misc['Anti Lock']['C-Sync']['Visualize'].DotColor = bool
+    end)
+
     CframeDesyncXD:AddDropdown('MyDropdown', {
-        Values = {"Under Ground", "Random", "void","Void Spam","Strafe","Around"}, 
+        Values = {"Under Ground", "Random", "Void","Strafe","Around"}, 
         Default = atlas.Misc['Anti Lock']['C-Sync'].Type,
         Multi = false, 
         Text = 'Cframe Desync Type',
@@ -3391,34 +3234,6 @@ if config.uienabled then
         end
     })
 
-    local function updateDoors(state)
-    local map = workspace:FindFirstChild("MAP")
-    if map and map:FindFirstChild("Map") then
-        for _, model in ipairs(map.Map:GetChildren()) do
-            if model:IsA("Model") and model.Name == "Door" then
-                for _, part in ipairs(model:GetChildren()) do
-                    if part:IsA("BasePart") and part.Name == "Door" then
-                        if state then
-                            part.Transparency = 1
-                            part.CanCollide = false
-                        else
-                            part.Transparency = 0
-                            part.CanCollide = true
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-spawn(function()
-    while wait(0.1) do 
-        updateDoors(getgenv().removedahooddoors)
-    end
-end)
-
-
     fakeanimas:AddToggle('AnimationsFake', {
         Text = 'Enable',
         Default = atlas.Animations.Enabled, 
@@ -3430,7 +3245,7 @@ end)
     end)
 
     fakeanimas:AddDropdown('MyDropdown', {
-        Values = {"Floss","Shake Da Booty","Fancy Foot","Hyper Dance","Fast Hands","Back Flip","The Zab","Skibidi Toilet","Flex Walk","Yung Blud","Happy","None"}, 
+        Values = {"Floss","Shake Da Booty","Fancy Feet","Hyper Dance","Fast Hands","Back Flip","The Zab","Skibidi Toilet","Flex Walk","Yung Blud","Happy","None"}, 
         Default = atlas.Animations.Animation,
         Multi = false, 
         Text = 'Animation Type',
@@ -3458,7 +3273,7 @@ end)
     })
 
     buyingtheseguns:AddToggle('AutoBuys', {
-        Text = 'enable',
+        Text = 'Enable',
         Default = atlas.Misc.AutoBuy.Enabled, 
         Tooltip = '',
     })
@@ -3623,10 +3438,50 @@ end)
         atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled = bool
     end)
 
+    selfextras:AddToggle('sounden', {
+        Text = 'Hit Chams',
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Enabled, 
+        Tooltip = '',
+    })
+    
+    Toggles.sounden:OnChanged(function(bool)
+        atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Enabled = bool
+    end)
+
     selfextras:AddDropdown('MyDropdown', {
-        Values = {'Default Headshot','Neverlose','Gamesense','One','Bell','Rust','TF2',
-    'Among Us','Minecraft','CS:GO','Saber','Baimware','Osu','TF2 Critical',
-    'Call of Duty','Bubble','Old Fatality','Ding','Snow','Laser','Mario','Steve'},
+        Values = {"ForceField","Plastic","Neon","Phonk"},
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Material,
+        Multi = false, 
+        Text = 'Hit Chams Material',
+        Tooltip = '',
+        Callback = function(bool)
+            atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Material = bool
+        end
+    })
+
+    selfextras:AddLabel('Hit Chams Color'):AddColorPicker('ColorPicker', {
+        Default = Color3.fromRGB(84, 101, 255),
+        Title = 'Color', 
+    })
+    
+    Options.ColorPicker:OnChanged(function(bool)
+        atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Color = bool
+    end)
+
+    selfextras:AddSlider('OffsetXSlider', {
+        Text = 'Hit Chams Duration',
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Duration,
+        Min = 0,
+        Max = 1,
+        Rounding = 4,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras.Gun['Hit Detection']['Hit Chams'].Duration = bool
+        end
+    })
+
+    selfextras:AddDropdown('MyDropdown', {
+        Values = {"Fatality","Stony","Sparkle","Phonk","Hentai","Bell","ApplePay","Amongus","Cock","ComboBreak","Bubble","Neverlose","Skeet"},
         Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds,
         Multi = false, 
         Text = 'Detection Sounds',
@@ -3635,6 +3490,51 @@ end)
             atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds = bool
         end
     })
+
+    selfextras:AddSlider('OffsetXSlider', {
+        Text = 'Volume',
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Volume,
+        Min = 0,
+        Max = 10,
+        Rounding = 2,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Volume = bool
+        end
+    })
+
+    selfextras:AddSlider('OffsetXSlider', {
+        Text = 'Pitch',
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Pitch,
+        Min = 0.2,
+        Max = 5,
+        Rounding = 3,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Pitch = bool
+        end
+    })
+
+    selfextras:AddSlider('OffsetXSlider', {
+        Text = 'Distortion',
+        Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Distortion,
+        Min = 0.2,
+        Max = 2,
+        Rounding = 3,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Distortion = bool
+        end
+    })
+
+    selfextras:AddButton('Preview Sound', function()
+        if atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled and atlas.Misc.Extras.Gun.Enabled then 
+            local Sound = string.format("hitsounds_stuff/%s", atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds)
+            PlaySound(getcustomasset(Sound), atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Volume)
+        else 
+            Library:Notify("Enable Sound Detection and the Master Switch First")
+        end
+    end)
 
     selfextras:AddToggle('gunsounds', {
         Text = 'Gun Sound',
@@ -3664,72 +3564,6 @@ end)
             elseif bool == "Steve" then 
                 GunS = "4965083997"
             end          
-        end
-    })
-
-    extrastuff:AddToggle('AutoNearBuy', {
-        Text = 'Enable',
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Enabled, 
-        Tooltip = '',
-    })
-    
-    Toggles.AutoNearBuy:OnChanged(function(bool)
-        atlas.Misc.Extras.AutoBuyWhenNear.Enabled = bool
-    end)
-
-    extrastuff:AddSlider('OffsetXSlider', {
-        Text = 'Cooldown',
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Cooldown,
-        Min = 0,
-        Max = 1,
-        Rounding = 2,
-        Compact = true,
-        Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Cooldown = bool
-        end
-    })
-
-    extrastuff:AddDropdown('MyDropdown', {
-        Values = {"LMG","Revolver","Tact SG","None"},
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Gun,
-        Multi = false, 
-        Text = 'Weapons',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Gun = bool
-        end
-    })
-
-    extrastuff:AddDropdown('MyDropdown', {
-        Values = {"LMG Ammo","Revolver Ammo","Tact SG Ammo","None"},
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Ammo,
-        Multi = false, 
-        Text = 'Ammo',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Ammo = bool
-        end
-    })
-
-    extrastuff:AddDropdown('MyDropdown', {
-        Values = {"Medium","High Medium","High Armor","None"},
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Armor,
-        Multi = false, 
-        Text = 'Armor',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Armor = bool
-        end
-    })
-
-    extrastuff:AddDropdown('MyDropdown', {
-        Values = {"Surgeon Mask","Knife","None"},
-        Default = atlas.Misc.Extras.AutoBuyWhenNear.Misc,
-        Multi = false, 
-        Text = 'Others',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas.Misc.Extras.AutoBuyWhenNear.Misc = bool
         end
     })
 
@@ -4322,48 +4156,16 @@ end)
     })
 
     MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = config.uibind, NoUI = true, Text = 'Menu keybind' })
-
-    local scriptName = "atlas"
-    local lastUpdateTime2 = tick()
-    local frameCount = 0
     
-    Watermarking.WatermarkConnection = RunService.Stepped:Connect(function()
-        if not watermarkyeah or getgenv().config.watermark then
-            Library:SetWatermarkVisibility(false)
-            return
-        end  
-    
-        frameCount = frameCount + 1
-        local currentTime2 = tick()
-        local timeDifference = currentTime2 - lastUpdateTime2
-    
-        if timeDifference > 0 then
-            local FPS = math.floor(frameCount / timeDifference)
-    
-            lastUpdateTime2 = currentTime2
-            frameCount = 0
-    
-            local success, gameInfo = pcall(function()
-                return MarketplaceService:GetProductInfo(game.PlaceId).Name:lower()
-            end)
-    
-            local gameName = success and gameInfo or "Unknown Game"
-            local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
-            local formattedPing = math.floor(ping)
-
-    
-            Library:SetWatermark(string.format(
-                "%s | %s (@%s) | %d fps | %d ms | %s",
-                scriptName,
-                Client.Name,
-                Client.DisplayName,
-                FPS,
-                formattedPing,
-                gameName
-            ))
-        end
-    end)    
     Library.ToggleKeybind = Options.MenuKeybind 
+
+    MenuGroup:AddToggle('KeybindListToggle', {
+        Text = 'Show Keybind List',
+        Default = false,
+        Callback = function(state)
+            Library.KeybindFrame.Visible = state
+        end
+    })
     
     MenuGroup:AddButton('Unload', function() 
         Library:Unload()
@@ -4432,7 +4234,7 @@ end)
         end
     })
 
-    browhahfsd222:AddButton('join game', function()
+    browhahfsd222:AddButton('Join Game', function()
         local gameID = (gameslol)
     
         if gameID then
@@ -4440,15 +4242,6 @@ end)
     
             teleportService:Teleport(gameID, Client)
         end
-    end)
-
-    MenuGroup:AddToggle('strafeenable', {
-        Text = 'Watermark',
-        Default = false, 
-        Tooltip = '',
-    })
-    Toggles.strafeenable:OnChanged(function(bool)
-        watermarkyeah = bool
     end)
 
     local themeFolder = 'Atlas'
@@ -4472,7 +4265,6 @@ end)
     end)
 end
 end
-
 
 --- this only logs username, displayname, time, hwid, job id and game id and game name
 

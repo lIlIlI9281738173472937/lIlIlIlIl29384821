@@ -518,7 +518,7 @@ RecalculateLOL = function(obj, delta)
     end
 end
 
---[[RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(function()
     local aimbotSettings = atlas['Target Aimbot']
 
     if aimbotSettings.Enabled and TargetPlayer and TargetPlayer.Character then
@@ -539,34 +539,7 @@ end
             end
         end
     end
-end)--]]
-
-task.spawn(function()
-    while true do
-        task.wait(0.01)
-        local aimbotSettings = atlas['Target Aimbot']
-
-        if aimbotSettings.Enabled and TargetPlayer and TargetPlayer.Character then
-            local character = TargetPlayer.Character
-            local aimPartName = aimbotSettings.AimPart
-            local targetPart = character:FindFirstChild(aimPartName)
-            local humanoid = character:FindFirstChild("Humanoid")
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            local resolverSettings = aimbotSettings.Resolver
-
-            if targetPart and humanoid and rootPart and resolverSettings.Enabled then
-                local success, predictedVelocity = pcall(RecalculateLOL, TargetPlayer)
-            
-                if success and typeof(predictedVelocity) == "Vector3" then
-                    if targetPart:IsA("BasePart") then
-                        targetPart.AssemblyLinearVelocity = predictedVelocity
-                    end
-                end
-            end
-        end
-    end
 end)
-
 Mouse.KeyDown:Connect(function(Key)
     if (Key == atlas['Target Aimbot'].Keybind) and atlas['Target Aimbot'].Enabled then
         TargetL = not TargetL

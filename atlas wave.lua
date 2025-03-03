@@ -3254,11 +3254,13 @@ if UserInputService.TouchEnabled then
     local targetLocked = false
 
     lockButton.MouseButton1Click:Connect(function()
-        if atlas and atlas["Target Aimbot"] and atlas["Target Aimbot"].Enabled then
+        if atlas["Target Aimbot"].Enabled then
             targetLocked = not targetLocked
             local newTarget = getClosestPlayerToCursor()
             TargetPlayer = targetLocked and newTarget or nil
             lockButton.Text = targetLocked and "Disable Lock" or "Enable Lock"
+        else 
+            Library:Notify("please enable aimbot",2)
         end
     end)
 end

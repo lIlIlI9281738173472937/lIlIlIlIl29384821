@@ -3964,17 +3964,6 @@ if config.uienabled then
         atlas['Target Aimbot'].LookAt = bool
     end)
 
-    ohokay:AddDropdown('MyDropdown', {
-        Values = {"0.132", "0.102","0.14"}, 
-        Default = 1,
-        Multi = false, 
-        Text = 'Auto Prediction Method',
-        Tooltip = '',
-        Callback = function(bool)
-            atlas['Target Aimbot']['Auto Prediction'].Mode = bool
-        end
-    })
-    
     ohokay:AddInput('UpdateThisPrediction', {
         Default = atlas['Target Aimbot'].Prediction,
         Numeric = true, 

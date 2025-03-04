@@ -3381,7 +3381,7 @@ if config.uienabled then
 
    playersaretheopps:AddButton('Teleport To', function()
         if TargetV then
-            humanoidRootPart.CFrame = Players[TargetV].humanoidRootPart.CFrame
+            humanoidRootPart.CFrame = Players[TargetV].HumanoidRootPart.CFrame
         end  
     end)
     

@@ -252,9 +252,10 @@ getgenv().atlas = {
 end--]]
 
 if game:GetService("UserInputService").TouchEnabled then 
-    Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/jamkless/Linoria_Mobile/refs/heads/main/lib.lua'))()
-    ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D'))()
-    SaveManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D'))()
+repo = 'https://raw.githubusercontent.com/LionTheGreatRealFrFr/MobileLinoriaLib/main/'
+Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 else
     Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria'))()
     ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina'))()

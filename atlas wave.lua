@@ -3379,10 +3379,10 @@ if config.uienabled then
         end        
     end)
 
-   browhahfsd222:AddButton('Teleport To', function()
+   playersaretheopps:AddButton('Teleport To', function()
         if TargetV then
             humanoidRootPart.CFrame = Players[TargetV].humanoidRootPart.CFrame
-       end  
+        end  
     end)
     
     visualsui:AddToggle('dotenable', {

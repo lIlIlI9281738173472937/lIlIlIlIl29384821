@@ -4,6 +4,13 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
+
+getgenv().config = {
+    uienabled = true,
+    uibind = "H",
+    autoshow = true
+}
+
 getgenv().atlas = { 
     ['Target Aimbot'] = {
         ['Enabled'] = false,
@@ -65,9 +72,7 @@ getgenv().atlas = {
         ['Resolver'] = {
             ['Enabled'] = false,
             ['Keybind'] = "",
-            ['Notify'] = false,
-            ['Use Move Direction'] = false,
-            ['Use Recalculate'] = false
+            ['Notify'] = false
         },
         ['Target Strafe'] = {
             ['Enabled'] = false,
@@ -80,6 +85,11 @@ getgenv().atlas = {
         },
     },
     ['Misc'] = {
+        ['Force Equip'] = {
+            ['Enabled'] = false,
+            ['Delay'] = 0.10,
+            ['Tool'] = "[LMG]",
+        },
         ['Movement Speed'] = {
             ['Enabled'] = false,
             ['UseSpeed'] = false,
@@ -154,7 +164,11 @@ getgenv().atlas = {
             },
         },
         ['Extras'] = {
-            ['Enabled'] = false,
+            ["Aspect Ratio"] = {
+                ['Enabled'] = false,
+                ['X'] = 100,
+                ['Y'] = 50,
+            },
             ['World'] = {
                 ['Enable'] = true,
                 ['Time'] = 24,
@@ -215,9 +229,9 @@ getgenv().atlas = {
                     ['Log Detection'] = false,
                     ['Sound Detection'] = {
                         ['Enabled'] = false,
-                        ['Volume'] = 7,
+                        ['Volume'] = 1,
                         ['Distortion'] = 0,
-                        ['Sounds'] = "RustHeadShot",
+                        ['Sounds'] = "OOF",
                     },
                     ['Hit Chams'] = {
                         ['Enabled'] = false,
@@ -247,21 +261,17 @@ getgenv().atlas = {
     },
 }
 
---[[if game:GetService("UserInputService").TouchEnabled then 
-    game.Players.LocalPlayer:Kick("mobile support is down rn please come back later dumb ahh nigga")
-end--]]
 
 if game:GetService("UserInputService").TouchEnabled then 
-repo = 'https://raw.githubusercontent.com/LionTheGreatRealFrFr/MobileLinoriaLib/main/'
-Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+    repo = 'https://raw.githubusercontent.com/LionTheGreatRealFrFr/MobileLinoriaLib/main/'
+    Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+    ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+    SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 else
     Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria'))()
     ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina'))()
     SaveManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua'))()
 end
-
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -462,11 +472,11 @@ setProperties(drawings.TargetDot, {
 })
 
 getgenv().esp = {
-
-    AutoStep = true, 
+    AutoStep = true,
     CharacterSize = Vector3.new(4, 5.75, 1.5),
     CharacterOffset = CFrame.new(0, -0.25, 0),
     UseBoundingBox = false, 
+    ExcludeSelf = true,
 
     PriorityColor = Color3.new(1,0.25,0.25),
     Enabled = false, 
@@ -537,7 +547,6 @@ function cframe_to_viewport(cframe, floor)
     return position, visible
 end
 
--- // drawing
 local old; old = hookfunction(Drawing.new, function(class, properties)
     local drawing = old(class)
     for i,v in next, properties or {} do
@@ -546,34 +555,40 @@ local old; old = hookfunction(Drawing.new, function(class, properties)
     return drawing
 end)
 
--- // player
 getgenv().players = {}
 local player = {}
 player.__index = player
 
 function player:Check()
-    
     local character = self.instance.Character
-    local rootpart = character and character:FindFirstChild('HumanoidRootPart')
-    local torso = character and character:FindFirstChild('UpperTorso')
-    local humanoid = rootpart and character:FindFirstChild('Humanoid')
-    local bodyeffects = character and character:FindFirstChild('BodyEffects')
-    local armor = bodyeffects and bodyeffects:FindFirstChild('Armor')
-
-    if not humanoid or 0 >= humanoid.Health then
+    if not character then
         return false
     end
+    
+    local rootpart = character:FindFirstChild('HumanoidRootPart')
+    local torso = character:FindFirstChild('UpperTorso')
+    local humanoid = character:FindFirstChild('Humanoid')
+    
+    if not humanoid or humanoid.Health <= 0 then
+        return false
+    end
+    
+    local bodyeffects = character:FindFirstChild('BodyEffects')
+    local armor = nil
+    
+    if bodyeffects then
+        armor = bodyeffects:FindFirstChild('Armor')
+    end
 
-    local screen_position, screen_visible = cframe_to_viewport(torso.CFrame * esp.CharacterOffset, true)
-
+    local screen_position, screen_visible = Camera:WorldToViewportPoint(torso.CFrame.p + esp.CharacterOffset.Position)
     if not screen_visible then
         return false
     end
 
-    if not getgenv().esp.Enabled then 
-        return 
+    if not getgenv().esp.Enabled then
+        return false
     end
-
+    
     return true, {
         character = character,
         rootpart = rootpart,
@@ -585,10 +600,9 @@ function player:Check()
         health = humanoid.Health,
         maxhealth = humanoid.MaxHealth,
         healthfactor = humanoid.Health / humanoid.MaxHealth,
-        armorfactor = armor.Value / 200,
-        distance = (rootpart.CFrame.p - camera.CFrame.p).magnitude
+        armorfactor = armor and armor.Value / 200 or 0,  
+        distance = (rootpart.CFrame.p - workspace.CurrentCamera.CFrame.p).magnitude
     }
-    
 end
 
 function player:Step(delta)
@@ -604,7 +618,7 @@ function player:Step(delta)
     end
     
     local size = self:GetBoxSize(check_data.position, check_data.cframe)
-    local position = vector2_floor(check_data.position - size / 2)
+    local position = vector2_floor(Vector2.new(check_data.position.X, check_data.position.Y) - size / 2)
     local color = self.priority and esp.PriorityColor
     local box_drawings = self.drawings.box
 
@@ -863,9 +877,8 @@ function player:SetVisible(bool)
     end
 end
 
--- // new player
 function esp.NewPlayer(player_instance)
-    if player_instance == game.Players.LocalPlayer then
+    if player_instance == game.Players.LocalPlayer and getgenv().esp.ExcludeSelf then
         return
     end
 
@@ -944,6 +957,10 @@ RunService.PreRender:Connect(function(delta)
         end
     end
 end)
+
+for _, plr in pairs(Players:GetPlayers()) do
+    esp.NewPlayer(plr)
+end
 
 if UserInputService.TouchEnabled then 
     local ToggledUi = Instance.new("ScreenGui")
@@ -1122,17 +1139,9 @@ RunService.Heartbeat:Connect(function()
         local humanoid = character:FindFirstChild("Humanoid")
         local rootPart = character:FindFirstChild("HumanoidRootPart")
         local resolverSettings = aimbotSettings.Resolver
-        local resolvedDelay = 20
 
-        if resolverSettings.Enabled == true then
-            if resolverSettings['Use Move Direction'] then 
-                targetPart.Velocity = character.Humanoid.MoveDirection * resolvedDelay
-                targetPart.AssemblyLinearVelocity = character.Humanoid.MoveDirection * resolvedDelay
-            end
-        end
-
-        if resolverSettings.Enabled == true then
-            if targetPart and humanoid and rootPart and resolverSettings['Use Recalculate'] then
+        if resolverSettings.Enabled then
+            if targetPart and humanoid and rootPart then
                 local success, predictedVelocity = pcall(RecalculateLOL, TargetPlayer)
             
                 if success and typeof(predictedVelocity) == "Vector3" then
@@ -1456,6 +1465,15 @@ if bullet_path and bullet_path:IsA("Folder") then
     bullet_path.ChildAdded:Connect(SirenAdded)
 end
 
+RunService.RenderStepped:Connect(function()
+    if atlas.Misc.Extras['Aspect Ratio'].Enabled then
+        if Camera.CFrame ~= originalCameraCFrame then
+            local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = Camera.CFrame:GetComponents()
+            Camera.CFrame = CFrame.new(X, Y, Z, R00 * atlas.Misc.Extras['Aspect Ratio'].X / 100, R01 * atlas.Misc.Extras['Aspect Ratio'].Y / 100, R02, R10, R11 * atlas.Misc.Extras['Aspect Ratio'].Y / 100, R12, R20 * atlas.Misc.Extras['Aspect Ratio'].X / 100, R21 * atlas.Misc.Extras['Aspect Ratio'].Y / 100, R22)
+        end
+    end
+end)
+
 function Slash(Position)
     local Part = Instance.new("Part")
     Part.Position = Position
@@ -1718,7 +1736,6 @@ function CumHitEffect(Position)
     Foam.Parent = Attachment
     
     Foam:Emit()
-
 end
 
 function characterClone(Player, Color, Material, Transparency, Parent)
@@ -1844,15 +1861,21 @@ do
         ["WarzoneDowned"] = "https://github.com/DetainedMonkey2891/warzone-downed/blob/main/warzonedownload.wav?raw=true",
         ["WarzoneHeadShot"] = "https://github.com/DetainedMonkey2891/warzonerheadshot/blob/main/warzoneheadshot%20(1).wav?raw=true",
         ["FortniteDowned"] = "https://github.com/DetainedMonkey2891/fortnitedownsound/blob/main/fortnitedownsound.wav?raw=true",
-        ["RustHeadShot"] = "https://github.com/CongoOhioDog/hitsounds/blob/master/rust_headshot.wav?raw=true"
+        ["RustHeadShot"] = "https://github.com/CongoOhioDog/hitsounds/blob/master/rust_headshot.wav?raw=true",
+        ["FortniteScar"] = "https://github.com/DetainedMonkey2891/fortnitescar/blob/main/ar-epic-shot-1.wav?raw=true",
+        ["PumpShotgun"] = "https://github.com/DetainedMonkey2891/pumpshotgun/blob/main/pump-shotgun-fortnite.wav?raw=true",
+        ["DiscordNotification"] = "https://github.com/DetainedMonkey2891/discordnoti/blob/main/discord-notification.wav?raw=true",
+        ["OOF"] = "https://github.com/DetainedMonkey2891/discordnoti/blob/main/uuhhh_evAtIOq.wav?raw=true",
+        ["MarioOOF"] = "https://github.com/DetainedMonkey2891/discordnoti/blob/main/sm64_mario_oof.wav?raw=true",
+        ["YesKing"] = "https://github.com/DetainedMonkey2891/discordnoti/blob/main/yes-king-ahhhhhhhhhhhhhhhh.wav?raw=true"
     }
 
-    if not isfolder("hitsounds_stuff") then
-        makefolder("hitsounds_stuff")
+    if not isfolder("AtlasAssets/Assets/Sounds") then
+        makefolder("AtlasAssets/Assets/Sounds")
     end
 
     for Name, Url in pairs(Hitsounds) do
-        local Path = "hitsounds_stuff" .. "/" .. Name
+        local Path = "AtlasAssets/Assets/Sounds" .. "/" .. Name
         if not isfile(Path) then
             writefile(Path, game:HttpGet(Url))
         end
@@ -1893,7 +1916,7 @@ local function handleHitmarker(plr, char)
                 if gunSettings.Enabled and gunSettings['Sound Detection'] and gunSettings['Sound Detection'].Enabled then
                     local soundName = gunSettings['Sound Detection'].Sounds
                     local V = gunSettings['Sound Detection'].Volume
-                    local Sound = "hitsounds_stuff/" .. soundName
+                    local Sound = "AtlasAssets/Assets/Sounds/" .. soundName
                     PlaySound(getcustomasset(Sound), V)
                 end
 
@@ -1960,108 +1983,6 @@ end
 
 Players.PlayerAdded:Connect(setupHitmarker)
 
-local CROSSHAIR_SPACING = 5
-local CROSSHAIR_LENGTH = 100
-local CROSSHAIR_THICKNESS = 2
-local CROSSHAIR_COLOR = Color3.fromRGB(84, 101, 255)
-local ROTATION_SPEED = 350
-local rotateCrosshair = false
-local CROSSHAIR_ON_TARGET = false
-local angle = 0
-
-local crosshairVertical1, crosshairVertical2, crosshairHorizontal1, crosshairHorizontal2
-local crosshairActive = false
-
-local function createCrosshair()
-    crosshairVertical1 = Drawing.new("Line")
-    crosshairVertical1.Visible = true
-    crosshairVertical1.Thickness = CROSSHAIR_THICKNESS
-    crosshairVertical1.Color = CROSSHAIR_COLOR
-    
-    crosshairVertical2 = Drawing.new("Line")
-    crosshairVertical2.Visible = true
-    crosshairVertical2.Thickness = CROSSHAIR_THICKNESS
-    crosshairVertical2.Color = CROSSHAIR_COLOR
-    
-    crosshairHorizontal1 = Drawing.new("Line")
-    crosshairHorizontal1.Visible = true
-    crosshairHorizontal1.Thickness = CROSSHAIR_THICKNESS
-    crosshairHorizontal1.Color = CROSSHAIR_COLOR
-    
-    crosshairHorizontal2 = Drawing.new("Line")
-    crosshairHorizontal2.Visible = true
-    crosshairHorizontal2.Thickness = CROSSHAIR_THICKNESS
-    crosshairHorizontal2.Color = CROSSHAIR_COLOR
-    
-    local angle = 0
-    
-    local function updateCrosshair(dt)
-        if not crosshairActive then return end
-
-        local mousePosition = UserInputService:GetMouseLocation()
-        
-        if rotateCrosshair then
-            angle = angle + ROTATION_SPEED * dt
-        else
-            angle = 0 
-        end
-        
-        local radAngle = math.rad(angle)
-        local cosAngle = math.cos(radAngle)
-        local sinAngle = math.sin(radAngle)
-        
-        local function rotatePoint(x, y)
-            return Vector2.new(
-                cosAngle * x - sinAngle * y,
-                sinAngle * x + cosAngle * y
-            )
-        end
-        
-        local v1Start = rotatePoint(0, -CROSSHAIR_LENGTH / 2 - CROSSHAIR_SPACING)
-        local v1End = rotatePoint(0, -CROSSHAIR_SPACING)
-        
-        crosshairVertical1.From = mousePosition + v1Start
-        crosshairVertical1.To = mousePosition + v1End
-        
-        local v2Start = rotatePoint(0, CROSSHAIR_SPACING)
-        local v2End = rotatePoint(0, CROSSHAIR_LENGTH / 2 + CROSSHAIR_SPACING)
-        
-        crosshairVertical2.From = mousePosition + v2Start
-        crosshairVertical2.To = mousePosition + v2End
-        
-        local h1Start = rotatePoint(-CROSSHAIR_LENGTH / 2 - CROSSHAIR_SPACING, 0)
-        local h1End = rotatePoint(-CROSSHAIR_SPACING, 0)
-        
-        crosshairHorizontal1.From = mousePosition + h1Start
-        crosshairHorizontal1.To = mousePosition + h1End
-        
-        local h2Start = rotatePoint(CROSSHAIR_SPACING, 0)
-        local h2End = rotatePoint(CROSSHAIR_LENGTH / 2 + CROSSHAIR_SPACING, 0)
-        
-        crosshairHorizontal2.From = mousePosition + h2Start
-        crosshairHorizontal2.To = mousePosition + h2End
-    end
-
-    RunService:BindToRenderStep("UpdateRotation", Enum.RenderPriority.Camera.Value, function(dt)
-        updateCrosshair(dt)
-    end)
-end
-
-local function removeCrosshair()
-    if crosshairVertical1 then crosshairVertical1.Visible = false end
-    if crosshairVertical2 then crosshairVertical2.Visible = false end
-    if crosshairHorizontal1 then crosshairHorizontal1.Visible = false end
-    if crosshairHorizontal2 then crosshairHorizontal2.Visible = false end
-    
-    crosshairActive = false
-end
-
-UserInputService.InputBegan:Connect(function(input)
-    if crosshairActive and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        return
-    end
-end)
-
 local previousTargetCharacter = nil
 local clientHumanoidRootPart = nil
 
@@ -2079,9 +2000,18 @@ RunService.Heartbeat:Connect(function()
         local targetCharacter = TargetPlayer.Character
         local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
 
-        if targetHumanoidRootPart and (math.abs(targetHumanoidRootPart.Position.X) > 5000 or math.abs(targetHumanoidRootPart.Position.Y) > 5000 or math.abs(targetHumanoidRootPart.Position.Z) > 5000) then 
+        --[[if targetHumanoidRootPart and (math.abs(targetHumanoidRootPart.Position.X) > 5000 or math.abs(targetHumanoidRootPart.Position.Y) > 5000 or math.abs(targetHumanoidRootPart.Position.Z) > 5000) then 
             return 
+        end--]]
+
+        if Client and targetStrafe.Enabled and TargetPlayer then
+            for _, obj in ipairs(game:GetDescendants()) do
+                if obj.Name == "Handle" then
+                    obj.CFrame = Donte
+                end
+            end
         end
+
 
         if targetStrafe.Mode == "Normal" then
             Assets.OtherStored.StrafeSpeed = Assets.OtherStored.StrafeSpeed + targetStrafe.Speed
@@ -2513,16 +2443,13 @@ end)
 
 local originalCFrame
 originalCFrame = hookmetamethod(game, "__index", newcclosure(function(self, key)
-    local anti_lock = atlas.Misc['Anti Lock']['C-Sync']
-    if not checkcaller() then
-        if key == "CFrame" and anti_lock.Enabled and Character then
-
-            if humanoidRootPart and humanoid and humanoid.Health > 0 then
-                if self == humanoidRootPart then
-                    return Script.SavedCFrame or CFrame.new()
-                elseif self == Character.Head then
-                    return Script.SavedCFrame and Script.SavedCFrame + Vector3.new(0, humanoidRootPart.Size / 2 + 0.5, 0) or CFrame.new()
-                end
+    if not checkcaller() and key == "CFrame" and atlas.Misc['Anti Lock']['C-Sync'].Enabled and Character then
+        local rootPart = Character:FindFirstChild("HumanoidRootPart")
+        if rootPart and Character:FindFirstChildOfClass("Humanoid") then
+            if self == rootPart then
+                return Script.SavedCFrame or CFrame.new()
+            elseif self == Character:FindFirstChild("Head") then
+                return (Script.SavedCFrame or CFrame.new()) + Vector3.new(0, rootPart.Size.Y / 2 + 0.5, 0)
             end
         end
     end
@@ -2724,8 +2651,8 @@ local function AnimPlay(ID, SPEED)
     local animation = Instance.new('Animation')
     animation.AnimationId = 'rbxassetid://' .. ID
 
-    if Character and humanoid then
-        Assets.AnimationStored.currentAnimation = humanoid:LoadAnimation(animation)
+    if Character and Character:FindFirstChild("Humanoid") then
+        Assets.AnimationStored.currentAnimation = Character.Humanoid:LoadAnimation(animation)
         
         Assets.AnimationStored.currentAnimation.Priority = Enum.AnimationPriority.Action
         
@@ -2763,13 +2690,9 @@ Client.CharacterAdded:Connect(function(character)
     RunService.Heartbeat:Connect(handleAnimation)
 end)
 
-getgenv().forceequip = false
-getgenv().forcedelay = 0.1
-local toolToForce = "[LMG]" 
-
 local function forceEquip()
-    if getgenv().forceequip then
-        local tool = Character:FindFirstChild(toolToForce) or Client:FindFirstChildOfClass("Backpack"):FindFirstChild(toolToForce)
+    if atlas.Misc['Force Equip'].Enabled then
+        local tool = Character:FindFirstChild(atlas.Misc['Force Equip'].Tool) or Client:FindFirstChildOfClass("Backpack"):FindFirstChild(atlas.Misc['Force Equip'].Tool)
         if tool and tool.Parent ~= Character then
             tool.Parent = Character
         end
@@ -2777,15 +2700,15 @@ local function forceEquip()
 end
 
 Character.ChildRemoved:Connect(function(child)
-    if child:IsA("Tool") and child.Name == toolToForce then
-        task.wait(getgenv().forcedelay)
+    if child:IsA("Tool") and child.Name == atlas.Misc['Force Equip'].Tool then
+        task.wait(atlas.Misc['Force Equip'].Delay)
         forceEquip()
     end
 end)
 
 task.spawn(function()
     while true do
-        if getgenv().forceequip then
+        if atlas.Misc['Force Equip'].Enabled then
             forceEquip()
         end
         task.wait(1)
@@ -2814,7 +2737,7 @@ RunService:BindToRenderStep("UpdateAnimationNone", Enum.RenderPriority.Camera.Va
             if animateScript then
                 animateScript.Disabled = true
             end
-        elseif atlas.Animations.Others.Enabled == false then
+        else
             local restored = false
             for _, data in pairs(Assets.OtherStored.SavedAnimations) do
                 local newTrack = Assets.OtherStored.HumanoidAnimator:LoadAnimation(data[1])
@@ -3246,6 +3169,8 @@ if UserInputService.TouchEnabled then
             local newTarget = getClosestPlayerToCursor()
             TargetPlayer = targetLocked and newTarget or nil
             lockButton.Text = targetLocked and "Disable Lock" or "Enable Lock"
+        else 
+            Library:Notify("please enable aimbot",2)
         end
     end)
 end
@@ -3275,6 +3200,40 @@ local function UpdateCheck()
         config.uienabled, config.autoshow, config.uibind = nil, nil, nil
         task.wait(1)
         Client:Kick("")
+    end
+end
+
+local function onCharacterAdded(player)
+    local targetPlayer = Players[TargetV]
+    if targetPlayer and targetPlayer.Character then
+        if drawings.TargetHighlight.Parent ~= targetPlayer.Character then
+            drawings.TargetHighlight.Parent = targetPlayer.Character
+            drawings.TargetHighlight.FillColor = Color3.new(1, 1, 1) 
+            drawings.TargetHighlight.OutlineColor = Color3.new(1, 1, 1)
+        end
+    end
+end
+
+if getgenv().highlightthieplayer then
+    local targetPlayer = Players[TargetV]
+    if not targetPlayer then
+        return
+    end
+    if drawings.TargetHighlight.Parent ~= targetPlayer.Character then
+        if targetPlayer.Character then
+            drawings.TargetHighlight.Parent = targetPlayer.Character
+            drawings.TargetHighlight.FillColor = Color3.new(1, 1, 1) 
+            drawings.TargetHighlight.OutlineColor = Color3.new(1, 1, 1)
+        else
+            return
+        end
+    end
+    targetPlayer.CharacterAdded:Connect(function()
+        onCharacterAdded(targetPlayer)
+    end)
+else
+    if drawings.TargetHighlight.Parent ~= game.CoreGui then
+        drawings.TargetHighlight.Parent = game.CoreGui
     end
 end
 
@@ -3331,8 +3290,9 @@ if config.uienabled then
     local colorconfigs = h:AddTab('Color Config')
     local playersaretheopps = ightbruhthesetheopps:AddTab('Players')
     local buyingtheseguns = buymenowplss:AddTab('Auto Buy')
-    local crosshandle = helloworldstfu:AddTab('Crosshair')
+   -- local crosshandle = helloworldstfu:AddTab('Crosshair')
     local espforeveryoneyay = helloworldstfu:AddTab('ESP')
+    local aspectthisration = helloworldstfu:AddTab('Aspect Ration')
     local selfextras = lookatme:AddTab('On Hit')
     local selfgunned = lookatme:AddTab('Gun')
     local worldlights = lookatme:AddTab('World')
@@ -3357,31 +3317,12 @@ if config.uienabled then
     })
     
     Toggles.dotenable:OnChanged(function(bool)
-        
-        if bool then 
-            local targetPlayer = Players[TargetV]
-            if not targetPlayer then
-                return
-            end
-            if drawings.TargetHighlight.Parent ~= targetPlayer.Character then
-                if targetPlayer.Character then 
-                    drawings.TargetHighlight.Parent = targetPlayer.Character
-                    drawings.TargetHighlight.FillColor = Color3.new(1, 1, 1) 
-                    drawings.TargetHighlight.OutlineColor = Color3.new(1, 1, 1)
-                else
-                    return
-                end
-            end
-        else
-            if drawings.TargetHighlight.Parent ~= game.CoreGui then 
-                drawings.TargetHighlight.Parent = game.CoreGui
-            end
-        end        
+        getgenv().highlightthieplayer = bool      
     end)
 
-   playersaretheopps:AddButton('Teleport To', function()
+    playersaretheopps:AddButton('Teleport To', function()
         if TargetV then
-            humanoidRootPart.CFrame = Players[TargetV].HumanoidRootPart.CFrame
+            humanoidRootPart.CFrame = Players[TargetPlr].Character.HumanoidRootPart.CFrame
         end  
     end)
     
@@ -3892,32 +3833,6 @@ if config.uienabled then
             Library:Notify("Resolver: " .. status, 3)
         end
     end)   
-
-    local sdswdffdfd = ohokay:AddDependencyBox()
-
-    sdswdffdfd:SetupDependencies({
-        { Toggles.ResolverXDDDD, true } 
-    })
-
-    sdswdffdfd:AddToggle('autoprediction', {
-        Text = 'Use Move Direction',
-        Default = atlas['Target Aimbot'].Resolver['Use Move Direction'], 
-        Tooltip = 'Good But Shit',
-    })
-    
-    Toggles.autoprediction:OnChanged(function(bool)
-        atlas['Target Aimbot'].Resolver['Use Move Direction'] = bool
-    end)
-
-    sdswdffdfd:AddToggle('autoprediction', {
-        Text = 'Use Recalculate',
-        Default = atlas['Target Aimbot'].Resolver['Use Recalculate'], 
-        Tooltip = 'Better',
-    })
-    
-    Toggles.autoprediction:OnChanged(function(bool)
-        atlas['Target Aimbot'].Resolver['Use Recalculate'] = bool
-    end)
 
     ohokay:AddToggle('autoprediction', {
         Text = 'Notify On Resolver',
@@ -4622,7 +4537,7 @@ if config.uienabled then
     end)
 
     selfextras:AddDropdown('MyDropdown', {
-        Values = {"Fatality","Sparkle","Phonk","Hentai","Bell","ApplePay","Amongus","Cock","ComboBreak","Bubble","Neverlose","Skeet","WarzoneDowned","WarzoneHeadShot","FortniteDowned","RustHeadShot"},
+        Values = {"Fatality","Sparkle","Phonk","Hentai","Bell","ApplePay","Amongus","Cock","ComboBreak","Bubble","Neverlose","Skeet","WarzoneDowned","WarzoneHeadShot","FortniteDowned","RustHeadShot","FortniteScar","PumpShotgun","DiscordNotification","OOF","MarioOOF","YesKing"},
         Default = atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds,
         Multi = false, 
         Text = 'Detection Sounds',
@@ -4658,7 +4573,7 @@ if config.uienabled then
 
     selfextras:AddButton('Preview Sound', function()
         if atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Enabled and atlas.Misc.Extras.Gun.Enabled then 
-            local Sound = string.format("hitsounds_stuff/%s", atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds)
+            local Sound = string.format("AtlasAssets/Assets/Sounds/%s", atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Sounds)
             PlaySound(getcustomasset(Sound), atlas.Misc.Extras.Gun['Hit Detection']['Sound Detection'].Volume)
         else 
             Library:Notify("Enable Sound Detection and the Master Switch First")
@@ -4888,40 +4803,34 @@ if config.uienabled then
     
     othermods:AddToggle('enablespa', {
         Text = 'Force Equip',
-        Default = false, 
+        Default = atlas.Misc['Force Equip'].Enabled, 
         Tooltip = '',
     })
     
     Toggles.enablespa:OnChanged(function(bool)
-        getgenv().forceequip = bool
+        atlas.Misc['Force Equip'].Enabled = bool
     end)
 
     othermods:AddSlider('OffsetXSlider', {
         Text = 'Delay',
-        Default = getgenv().forcedelay,
+        Default = atlas.Misc['Force Equip'].Delay,
         Min = 0,
         Max = 1,
         Rounding = 2,
         Compact = true,
         Callback = function(bool)
-            getgenv().forcedelay = bool
+            atlas.Misc['Force Equip'].Delay = bool
         end
     })
 
     othermods:AddDropdown('MyDropdown', {
-        Values = {"LMG","Revolver","Knife"},
+        Values = {"[LMG]","[Revolver]","[Knife]"},
         Default = 1,
         Multi = false, 
         Text = 'Tool',
         Tooltip = '',
         Callback = function(bool)
-            local toolMappings = {
-                LMG = "[LMG]",
-                Revolver = "[Revolver]",
-                Knife = "[Knife]"
-            }
-            
-            local toolToForce = toolMappings[bool] or nil   
+            atlas.Misc['Force Equip'].Tool = bool
         end
     })
 
@@ -4945,7 +4854,7 @@ if config.uienabled then
         atlas.Animations.Others['Disable In-Game'] = bool
     end)
 
-    crosshandle:AddToggle('enablespa', {
+    --[[crosshandle:AddToggle('enablespa', {
         Text = 'Enable',
         Default = false, 
         Tooltip = '',
@@ -5039,7 +4948,7 @@ if config.uienabled then
         Callback = function(bool)
             ROTATION_SPEED = bool
         end
-    })
+    })--]]
 
     worldlights:AddToggle('enableworld', {
         Text = 'Enable',
@@ -5494,6 +5403,40 @@ if config.uienabled then
         getgenv().esp.BoxEnabled = bool
     end)
 
+    espforeveryoneyay:AddToggle('niggero', {
+        Text = 'Smoothen Box',
+        Default = false, 
+        Tooltip = '',
+    })
+    
+    Toggles.niggero:OnChanged(function(bool)
+        getgenv().esp.BoxDynamic = bool
+    end)
+
+    espforeveryoneyay:AddSlider('OffsetXSlider', {
+        Text = 'Box X Offset',
+        Default = getgenv().esp.BoxStaticXFactor,
+        Min = 1,
+        Max = 5,
+        Rounding = 2,
+        Compact = true,
+        Callback = function(bool)
+            getgenv().esp.BoxStaticXFactor = bool
+        end
+    })
+
+    espforeveryoneyay:AddSlider('OffsetXSlider', {
+        Text = 'Box Y Offset',
+        Default = getgenv().esp.BoxStaticYFactor,
+        Min = 1,
+        Max = 5,
+        Rounding = 2,
+        Compact = true,
+        Callback = function(bool)
+            getgenv().esp.BoxStaticYFactor = bool
+        end
+    })
+
     espforeveryoneyay:AddLabel('Box Color'):AddColorPicker('ColorPicker', {
         Default = getgenv().esp.BoxColor,
         Title = 'Box Color', 
@@ -5631,6 +5574,39 @@ if config.uienabled then
         getgenv().esp.ChamsOuterColor = bool
     end)
 
+    aspectthisration:AddToggle('niggero', {
+        Text = 'Enable',
+        Default = atlas.Misc.Extras['Aspect Ratio'].Enabled, 
+        Tooltip = '',
+    })
+    
+    Toggles.niggero:OnChanged(function(bool)
+        atlas.Misc.Extras['Aspect Ratio'].Enabled = bool
+    end)
+
+    aspectthisration:AddSlider('OffsetXSlider', {
+        Text = 'Horizontal',
+        Default = atlas.Misc.Extras['Aspect Ratio'].X,
+        Min = 1,
+        Max = 120,
+        Rounding = 2,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras['Aspect Ratio'].X = bool
+        end
+    })
+
+    aspectthisration:AddSlider('OffsetXSlider', {
+        Text = 'Vertical',
+        Default = atlas.Misc.Extras['Aspect Ratio'].Y,
+        Min = 1,
+        Max = 120,
+        Rounding = 2,
+        Compact = true,
+        Callback = function(bool)
+            atlas.Misc.Extras['Aspect Ratio'].Y = bool
+        end
+    })
 
     MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = config.uibind, NoUI = true, Text = 'Menu keybind' })
     
@@ -5862,8 +5838,3 @@ else
 end
 
 wait(60)
-
-for i,v in next, Players:GetPlayers() do 
-    esp.NewPlayer(v)
-end 
-return esp

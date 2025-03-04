@@ -248,14 +248,12 @@ getgenv().atlas = {
 }
 
 if game:GetService("UserInputService").TouchEnabled then 
-    Library = "https://raw.githubusercontent.com/jamkless/Linoria_Mobile/refs/heads/main/lib.lua"
-    ThemeManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D"
-    SaveManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BSaveManager%5D"
-else
-    ThemeManager = "https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina"
-    SaveManager = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua"
-    Library = 'https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria'
+    game.Players.LocalPlayer:Kick("mobile support is down rn please come back later dumb ahh nigga")
 end
+
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria'))()
+local ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina'))()
+local SaveManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua'))()
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

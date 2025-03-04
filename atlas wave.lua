@@ -3379,16 +3379,11 @@ if config.uienabled then
         end        
     end)
 
-    playersaretheopps:AddButton({
-        Text = 'Teleport To',
-        Func = function()
-            if TargetV then
-                humanoidRootPart.CFrame = Players[TargetV].humanoidRootPart.CFrame
-           end           
-        end,
-        DoubleClick = false,
-        Tooltip = ''
-    })
+   browhahfsd222:AddButton('Teleport To', function()
+        if TargetV then
+            humanoidRootPart.CFrame = Players[TargetV].humanoidRootPart.CFrame
+       end  
+    end)
     
     visualsui:AddToggle('dotenable', {
         Text = 'Dot',

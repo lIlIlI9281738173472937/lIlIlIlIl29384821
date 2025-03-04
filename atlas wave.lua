@@ -3357,8 +3357,8 @@ if config.uienabled then
     })
     
     Toggles.dotenable:OnChanged(function(bool)
-        atlas.Debugger.Highlight = bool
-        if atlas.Debugger.Highlight then 
+        
+        if bool then 
             local targetPlayer = Players[TargetV]
             if not targetPlayer then
                 return

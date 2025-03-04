@@ -247,19 +247,7 @@ getgenv().atlas = {
     },
 }
 
-local function safeLoad(url)
-    local success, result = pcall(function()
-        return loadstring(game:HttpGet(url))()
-    end)
-    if success then
-        return result
-    else
-        warn("Failed to load: " .. url)
-        return nil
-    end
-end
-
-if UserInputService.TouchEnabled then 
+if game:GetService("UserInputService").TouchEnabled then 
     Library = "https://raw.githubusercontent.com/jamkless/Linoria_Mobile/refs/heads/main/lib.lua"
     ThemeManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D"
     SaveManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BSaveManager%5D"

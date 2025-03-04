@@ -259,23 +259,16 @@ local function safeLoad(url)
     end
 end
 
-local mobileURLs = {
-    Library = "https://raw.githubusercontent.com/jamkless/Linoria_Mobile/refs/heads/main/lib.lua",
-    ThemeManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D",
+if UserInputService.TouchEnabled then 
+    Library = "https://raw.githubusercontent.com/jamkless/Linoria_Mobile/refs/heads/main/lib.lua"
+    ThemeManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BThemeManager%5D"
     SaveManager = "https://raw.githubusercontent.com/Mc4121ban/Linoria-Library-Mobile/refs/heads/main/Gui%20Lib%20%5BSaveManager%5D"
-}
+else
+    ThemeManager = "https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina"
+    SaveManager = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua"
+    Library = 'https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria'
+end
 
-local pcURLs = {
-    ThemeManager = "https://raw.githubusercontent.com/DetainedMonkey2891/ThemeManager/refs/heads/main/Maina",
-    SaveManager = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/refs/heads/main/addons/SaveManager.lua",
-    Library = 'https://raw.githubusercontent.com/VaxKs/gfe/main/CustomLinoria',
-    
-}
-
-local selectedURLs = game:GetService("UserInputService").TouchEnabled and mobileURLs or pcURLs
-local Library = safeLoad(selectedURLs.Library)
-local ThemeManager = safeLoad(selectedURLs.ThemeManager)
-local SaveManager = safeLoad(selectedURLs.SaveManager)--]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -3259,8 +3252,6 @@ if UserInputService.TouchEnabled then
             local newTarget = getClosestPlayerToCursor()
             TargetPlayer = targetLocked and newTarget or nil
             lockButton.Text = targetLocked and "Disable Lock" or "Enable Lock"
-        else 
-            Library:Notify("please enable aimbot",2)
         end
     end)
 end

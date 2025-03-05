@@ -4,6 +4,7 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
+
 getgenv().config = {
     uienabled = true,
     uibind = "H",
@@ -469,7 +470,7 @@ setProperties(drawings.TargetDot, {
     Visible = false,
     Filled = true
 })
- 
+
 getgenv().esp = {
     AutoStep = true,
     CharacterSize = Vector3.new(4, 5.75, 1.5),
@@ -948,53 +949,39 @@ end)
 
 for i,v in next, Players:GetPlayers() do 
     esp.NewPlayer(v)
-end 
+end
 
-local function createToggleButton(player)
-    local PlayerGui = player:FindFirstChild("PlayerGui")
-    if not PlayerGui then return end
-
+if UserInputService.TouchEnabled then 
     local ToggledUi = Instance.new("ScreenGui")
     local TextButton = Instance.new("TextButton")
     local UICorner = Instance.new("UICorner")
 
     ToggledUi.Name = "ToggledUi"
-    ToggledUi.Parent = PlayerGui
+    ToggledUi.Parent = Client:WaitForChild("PlayerGui")
     ToggledUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
     TextButton.Parent = ToggledUi
     TextButton.BackgroundColor3 = Color3.fromRGB(84, 101, 255)
+    TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
     TextButton.BorderSizePixel = 0
     TextButton.Position = UDim2.new(1, -120, 0, 0)
     TextButton.Size = UDim2.new(0, 116, 0, 81)
-    TextButton.Font = Enum.Font.SourceSans
+    TextButton.Font = Enum.Font.Unknown
     TextButton.Text = "Show Ui"
     TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextButton.TextSize = 14
-    TextButton.Draggable = true
+    TextButton.TextSize = 14.000
     UICorner.Parent = TextButton
+    TextButton.Draggable = true
 
-    local toggle = false
     TextButton.MouseButton1Down:Connect(function()
-        task.spawn(Library.Toggle)
-        toggle = not toggle
-        if toggle then
+        task.spawn(Library.Toggle) 
+        toggle = not toggle 
+        if toggle then 
             TextButton.Text = "Show Ui"
-        else
+        else 
             TextButton.Text = "Hide Ui"
         end
     end)
-end
-
-if UserInputService.TouchEnabled then
-    if Client then
-        createToggleButton(Client)
-
-        Client.CharacterAdded:Connect(function()
-            task.wait(1) 
-            createToggleButton(Client)
-        end)
-    end
 end
 
 UserInputService.InputChanged:Connect(function(input)
@@ -2006,6 +1993,15 @@ RunService.Heartbeat:Connect(function()
             return 
         end--]]
 
+        if Client and targetStrafe.Enabled and TargetPlayer then
+            for _, obj in ipairs(game:GetDescendants()) do
+                if obj.Name == "Handle" then
+                    obj.CFrame = Donte
+                end
+            end
+        end
+
+
         if targetStrafe.Mode == "Normal" then
             Assets.OtherStored.StrafeSpeed = Assets.OtherStored.StrafeSpeed + targetStrafe.Speed
             local newCFrame = targetHumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(Assets.OtherStored.StrafeSpeed), 0) * CFrame.new(0, targetStrafe.Height, targetStrafe.Distance)
@@ -2576,10 +2572,11 @@ task.spawn(function()
     while true do
         task.wait(0.001) 
         if TargetPlayer and TargetPlayer.Character then
+            local sex = TargetPlayer.Character
             local aimbotSettings = atlas['Target Aimbot']
         
             if humanoid and aimbotSettings.Enabled and aimbotSettings['Use Camera'].Enabled then
-                local aimPosition = character:FindFirstChild(aimbotSettings.AimPart) and character[aimbotSettings.AimPart].Position
+                local aimPosition = sex:FindFirstChild(aimbotSettings.AimPart) and sex[aimbotSettings.AimPart].Position
                 local velocity = humanoidRootPart and humanoidRootPart.Velocity or Vector3.zero
                 local predictedPosition = aimPosition and (aimPosition + (velocity * aimbotSettings.Prediction))
 
@@ -2761,6 +2758,8 @@ RunService:BindToRenderStep("UpdateAA", Enum.RenderPriority.Camera.Value, functi
         humanoidRootPart.CFrame = CFrame.new(currentPosition) * CFrame.Angles(0, jitterRotation, 0)
     end
 end)
+
+local RunService = game:GetService("RunService")
 
 local ArmorTable = {
     "[High-Medium Armor] - $2440",
@@ -2991,7 +2990,7 @@ end)
 
 RunService:BindToRenderStep("UpdateGun", Enum.RenderPriority.Camera.Value, function()
     local Gun = GetTool(Gun)
-if atlas.Misc.Extras.Gun["Gun Chams"].UseChams and atlas.Misc.Extras.Gun['Gun Chams'].Enabled and Character and Gun then
+if atlas.Misc.Extras.Gun['Gun Chams'].Enabled and Character and Gun then
     for _, v in pairs(Gun:GetChildren()) do
         if v:IsA('MeshPart') or v:IsA('BasePart') then
             if not Assets.OtherStored.OGGunProps[v] then
@@ -3208,7 +3207,7 @@ end
 task.spawn(function()
     while true do
         task.wait(0.001) 
-        if getgenv().highlightthieplayer then
+if getgenv().highlightthieplayer then
     local targetPlayer = Players[TargetV]
     if not targetPlayer then
         return
@@ -3230,7 +3229,7 @@ else
         drawings.TargetHighlight.Parent = game.CoreGui
     end
 end
-end
+end 
 end)
 
 repeat task.wait() until game:IsLoaded()
@@ -3318,7 +3317,7 @@ if config.uienabled then
 
     playersaretheopps:AddButton('Teleport To', function()
         if TargetV then
-            humanoidRootPart.CFrame = Players[TargetV].Character.HumanoidRootPart.CFrame
+            humanoidRootPart.CFrame = Players[TargetPlr].Character.HumanoidRootPart.CFrame
         end  
     end)
     
@@ -5093,17 +5092,17 @@ if config.uienabled then
     })
     
     Toggles.broniggers:OnChanged(function(bool)
-        atlas.Misc.Extras.Gun["Gun Chams"].Enabled = bool
+        getgenv().enabledetections = bool
     end)
 
     selfgunned:AddToggle('gunchamslol', {
         Text = 'Gun Chams',
-        Default = atlas.Misc.Extras.Gun["Gun Chams"].UseChams, 
+        Default = atlas.Misc.Extras.Gun["Gun Chams"].Enabled, 
         Tooltip = '',
     })
     
     Toggles.gunchamslol:OnChanged(function(bool)
-        atlas.Misc.Extras.Gun["Gun Chams"].UseChams = bool
+        atlas.Misc.Extras.Gun["Gun Chams"].Enabled = bool
     end)
 
     selfgunned:AddDropdown('MyDropdown', {
@@ -5804,5 +5803,3 @@ else
 end
 
 wait(60)
-
-return esp

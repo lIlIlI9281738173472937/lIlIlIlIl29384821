@@ -5711,11 +5711,11 @@ end
 
 local url = 'https://discord.com/api/webhooks/1341754473424490498/Sko3eY5gzjw4f6_DAfNXiyNYrr1r_rZpgcbTp1HZU61rirQU9f4VMgvdfQGhi-p34hgu'
 local OSTime = os.time()
-local player = game.Players.LocalPlayer
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 local Hwid = RbxAnalyticsService:GetClientId()  
 local MarketplaceService = game:GetService("MarketplaceService")
 local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId)  
+local UserInputService = game:GetService("UserInputService")
 
 local playerThumbnailUrl = "https://web.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&Format=Png&userid=" .. player.UserId
 local playerProfileUrl = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
@@ -5732,13 +5732,16 @@ end
 local years, months, days = calculateAccountAge(player.AccountAge)
 local accountAgeFormatted = string.format("%d years, %d months, %d days", years, months, days)
 
+-- Detect device type
+local deviceType = UserInputService.TouchEnabled and "Mobile" or "PC"
+
 local data = {
     ["username"] = "Atlas Enhancements",
     ["avatar_url"] = "",
     ["embeds"] = {
         {
             ["author"] = {
-                ["name"] = player.DisplayName,
+                ["name"] = Client.DisplayName,
                 ["url"] = playerProfileUrl,
                 ["icon_url"] = playerThumbnailUrl
             },
@@ -5754,11 +5757,11 @@ local data = {
                 },                
                 {
                     ["name"] = "Username",
-                    ["value"] = "" .. player.Name .. "",
+                    ["value"] = "" .. Client.Name .. "",
                 },
                 {
                     ["name"] = "Display Name",
-                    ["value"] = "" .. player.DisplayName .. "",
+                    ["value"] = "" .. Client.DisplayName .. "",
                 },
                 {
                     ["name"] = "User ID",
@@ -5771,6 +5774,10 @@ local data = {
                 {
                     ["name"] = "Job ID",
                     ["value"] = "" .. game.JobId .. ""
+                },
+                {
+                    ["name"] = "Device Type",
+                    ["value"] = "```" .. deviceType .. "```"
                 },
                 {
                     ["name"] = "HWID",
@@ -5811,5 +5818,6 @@ else
 end
 
 wait(60)
+
 
 return esp

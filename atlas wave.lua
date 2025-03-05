@@ -951,37 +951,51 @@ for i,v in next, Players:GetPlayers() do
     esp.NewPlayer(v)
 end
 
-if UserInputService.TouchEnabled then 
+local function createToggleButton(player)
+    local PlayerGui = player:FindFirstChild("PlayerGui")
+    if not PlayerGui then return end
+
     local ToggledUi = Instance.new("ScreenGui")
     local TextButton = Instance.new("TextButton")
     local UICorner = Instance.new("UICorner")
 
     ToggledUi.Name = "ToggledUi"
-    ToggledUi.Parent = Client:WaitForChild("PlayerGui")
+    ToggledUi.Parent = PlayerGui
     ToggledUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
     TextButton.Parent = ToggledUi
     TextButton.BackgroundColor3 = Color3.fromRGB(84, 101, 255)
-    TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-
     TextButton.BorderSizePixel = 0
     TextButton.Position = UDim2.new(1, -120, 0, 0)
     TextButton.Size = UDim2.new(0, 116, 0, 81)
-    TextButton.Font = Enum.Font.Unknown
+    TextButton.Font = Enum.Font.SourceSans
     TextButton.Text = "Show Ui"
     TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextButton.TextSize = 14.000
-    UICorner.Parent = TextButton
+    TextButton.TextSize = 14
     TextButton.Draggable = true
+    UICorner.Parent = TextButton
 
+    local toggle = false
     TextButton.MouseButton1Down:Connect(function()
-        task.spawn(Library.Toggle) 
-        toggle = not toggle 
-        if toggle then 
+        task.spawn(Library.Toggle)
+        toggle = not toggle
+        if toggle then
             TextButton.Text = "Show Ui"
-        else 
+        else
             TextButton.Text = "Hide Ui"
         end
     end)
+end
+
+if UserInputService.TouchEnabled then
+    if Client then
+        createToggleButton(Client)
+
+        Client.CharacterAdded:Connect(function()
+            task.wait(1) 
+            createToggleButton(Client)
+        end)
+    end
 end
 
 UserInputService.InputChanged:Connect(function(input)
@@ -3128,8 +3142,9 @@ local function autoselectplayerbruh()
     end
 end
 
-if UserInputService.TouchEnabled then
-    local playerGui = Client:WaitForChild("PlayerGui")
+local function createLockButton(player)
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then return end
 
     local toggledLockGui = Instance.new("ScreenGui")
     toggledLockGui.Name = "ToggledLock"
@@ -3160,9 +3175,20 @@ if UserInputService.TouchEnabled then
             TargetPlayer = targetLocked and newTarget or nil
             lockButton.Text = targetLocked and "Disable Lock" or "Enable Lock"
         else 
-            Library:Notify("please enable aimbot",2)
+            lockButton.Text = "Please enable aimbot to use this"
         end
     end)
+end
+
+if UserInputService.TouchEnabled then
+    if Client then
+        createLockButton(Client)
+
+        Client.CharacterAdded:Connect(function()
+            task.wait(1)
+            createLockButton(Client)
+        end)
+    end
 end
 
 RunService:BindToRenderStep("UpdateAutoSelect", Enum.RenderPriority.Camera.Value, function()

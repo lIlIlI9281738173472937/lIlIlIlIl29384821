@@ -4,7 +4,6 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
-
 getgenv().config = {
     uienabled = true,
     uibind = "H",
@@ -470,7 +469,7 @@ setProperties(drawings.TargetDot, {
     Visible = false,
     Filled = true
 })
-
+ 
 getgenv().esp = {
     AutoStep = true,
     CharacterSize = Vector3.new(4, 5.75, 1.5),
@@ -949,39 +948,53 @@ end)
 
 for i,v in next, Players:GetPlayers() do 
     esp.NewPlayer(v)
-end
+end 
 
-if UserInputService.TouchEnabled then 
+local function createToggleButton(player)
+    local PlayerGui = player:FindFirstChild("PlayerGui")
+    if not PlayerGui then return end
+
     local ToggledUi = Instance.new("ScreenGui")
     local TextButton = Instance.new("TextButton")
     local UICorner = Instance.new("UICorner")
 
     ToggledUi.Name = "ToggledUi"
-    ToggledUi.Parent = Client:WaitForChild("PlayerGui")
+    ToggledUi.Parent = PlayerGui
     ToggledUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
     TextButton.Parent = ToggledUi
     TextButton.BackgroundColor3 = Color3.fromRGB(84, 101, 255)
-    TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-
     TextButton.BorderSizePixel = 0
     TextButton.Position = UDim2.new(1, -120, 0, 0)
     TextButton.Size = UDim2.new(0, 116, 0, 81)
-    TextButton.Font = Enum.Font.Unknown
+    TextButton.Font = Enum.Font.SourceSans
     TextButton.Text = "Show Ui"
     TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextButton.TextSize = 14.000
-    UICorner.Parent = TextButton
+    TextButton.TextSize = 14
     TextButton.Draggable = true
+    UICorner.Parent = TextButton
 
+    local toggle = false
     TextButton.MouseButton1Down:Connect(function()
-        task.spawn(Library.Toggle) 
-        toggle = not toggle 
-        if toggle then 
+        task.spawn(Library.Toggle)
+        toggle = not toggle
+        if toggle then
             TextButton.Text = "Show Ui"
-        else 
+        else
             TextButton.Text = "Hide Ui"
         end
     end)
+end
+
+if UserInputService.TouchEnabled then
+    if Client then
+        createToggleButton(Client)
+
+        Client.CharacterAdded:Connect(function()
+            task.wait(1) 
+            createToggleButton(Client)
+        end)
+    end
 end
 
 UserInputService.InputChanged:Connect(function(input)
@@ -1993,15 +2006,6 @@ RunService.Heartbeat:Connect(function()
             return 
         end--]]
 
-        if Client and targetStrafe.Enabled and TargetPlayer then
-            for _, obj in ipairs(game:GetDescendants()) do
-                if obj.Name == "Handle" then
-                    obj.CFrame = Donte
-                end
-            end
-        end
-
-
         if targetStrafe.Mode == "Normal" then
             Assets.OtherStored.StrafeSpeed = Assets.OtherStored.StrafeSpeed + targetStrafe.Speed
             local newCFrame = targetHumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(Assets.OtherStored.StrafeSpeed), 0) * CFrame.new(0, targetStrafe.Height, targetStrafe.Distance)
@@ -2758,8 +2762,6 @@ RunService:BindToRenderStep("UpdateAA", Enum.RenderPriority.Camera.Value, functi
     end
 end)
 
-local RunService = game:GetService("RunService")
-
 local ArmorTable = {
     "[High-Medium Armor] - $2440",
     "[High-Medium Armor] - $2163",
@@ -2989,7 +2991,7 @@ end)
 
 RunService:BindToRenderStep("UpdateGun", Enum.RenderPriority.Camera.Value, function()
     local Gun = GetTool(Gun)
-if atlas.Misc.Extras.Gun['Gun Chams'].Enabled and Character and Gun then
+if atlas.Misc.Extras.Gun["Gun Chams"].UseChams and atlas.Misc.Extras.Gun['Gun Chams'].Enabled and Character and Gun then
     for _, v in pairs(Gun:GetChildren()) do
         if v:IsA('MeshPart') or v:IsA('BasePart') then
             if not Assets.OtherStored.OGGunProps[v] then
@@ -3203,7 +3205,10 @@ local function onCharacterAdded(player)
     end
 end
 
-if getgenv().highlightthieplayer then
+task.spawn(function()
+    while true do
+        task.wait(0.001) 
+        if getgenv().highlightthieplayer then
     local targetPlayer = Players[TargetV]
     if not targetPlayer then
         return
@@ -3225,6 +3230,8 @@ else
         drawings.TargetHighlight.Parent = game.CoreGui
     end
 end
+end
+end)
 
 repeat task.wait() until game:IsLoaded()
 UpdateCheck()
@@ -3311,7 +3318,7 @@ if config.uienabled then
 
     playersaretheopps:AddButton('Teleport To', function()
         if TargetV then
-            humanoidRootPart.CFrame = Players[TargetPlr].Character.HumanoidRootPart.CFrame
+            humanoidRootPart.CFrame = Players[TargetV].Character.HumanoidRootPart.CFrame
         end  
     end)
     
@@ -5086,17 +5093,17 @@ if config.uienabled then
     })
     
     Toggles.broniggers:OnChanged(function(bool)
-        getgenv().enabledetections = bool
+        atlas.Misc.Extras.Gun["Gun Chams"].Enabled = bool
     end)
 
     selfgunned:AddToggle('gunchamslol', {
         Text = 'Gun Chams',
-        Default = atlas.Misc.Extras.Gun["Gun Chams"].Enabled, 
+        Default = atlas.Misc.Extras.Gun["Gun Chams"].UseChams, 
         Tooltip = '',
     })
     
     Toggles.gunchamslol:OnChanged(function(bool)
-        atlas.Misc.Extras.Gun["Gun Chams"].Enabled = bool
+        atlas.Misc.Extras.Gun["Gun Chams"].UseChams = bool
     end)
 
     selfgunned:AddDropdown('MyDropdown', {
@@ -5476,36 +5483,6 @@ if config.uienabled then
     end)
 
     espforeveryoneyay:AddToggle('niggero', {
-        Text = 'Armorbar',
-        Default = false, 
-        Tooltip = '',
-    })
-    
-    Toggles.niggero:OnChanged(function(bool)
-        getgenv().esp.BarLayout.armor.enabled = bool
-    end)
-
-    espforeveryoneyay:AddLabel('Armorbar Color'):AddColorPicker('ColorPicker', {
-        Default = getgenv().esp.BarLayout.armor.color_full,
-        Title = 'Armorbar Color', 
-    })
-    
-    Options.ColorPicker:OnChanged(function(bool)
-        getgenv().esp.BarLayout.armor.color_empty = bool
-        getgenv().esp.BarLayout.armor.color_full = bool
-    end)
-
-    espforeveryoneyay:AddToggle('niggero', {
-        Text = 'Armortext',
-        Default = false, 
-        Tooltip = '',
-    })
-    
-    Toggles.niggero:OnChanged(function(bool)
-        getgenv().esp.TextLayout.armor.enabled = bool
-    end)
-
-    espforeveryoneyay:AddToggle('niggero', {
         Text = 'Distance',
         Default = false, 
         Tooltip = '',
@@ -5827,3 +5804,5 @@ else
 end
 
 wait(60)
+
+return esp

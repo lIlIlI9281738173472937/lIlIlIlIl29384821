@@ -503,19 +503,17 @@ getgenv().esp = {
         ['nametag']  = { enabled = false, position = 'top', order = 1 },
         ['name']     = { enabled = false, position = 'top', order = 2 },
         ['health']   = { enabled = false, position = 'left', order = 1, bar = 'health' },
-        ['armor']    = { enabled = false, position = 'left', order = 2, bar = 'armor' },
         ['tool']     = { enabled = false, position = 'bottom', suffix = '', prefix = '', order = 1 },
         ['distance'] = { enabled = false, position = 'bottom', suffix = 'm', order = 2 },
     },
 
     BarLayout = {
         ['health'] = { enabled = false, position = 'left', order = 1, color_empty = Color3.fromRGB(176, 84, 84), color_full = Color3.fromRGB(140, 250, 140) },
-        ['armor']  = { enabled = false, position = 'left', order = 2, color_empty = Color3.fromRGB(58, 58, 97), color_full = Color3.fromRGB(72, 72, 250) }
     }
     
 }
 
-local runservice = game:GetService('RunService')
+
 local camera = workspace.CurrentCamera
 local world_to_viewport = camera.WorldToViewportPoint
 local inf = math.huge
@@ -560,48 +558,37 @@ local player = {}
 player.__index = player
 
 function player:Check()
-    local character = self.instance.Character
-    if not character then
+    
+    local lolni = self.instance.Character
+    local rootpart = lolni and lolni:FindFirstChild('HumanoidRootPart')
+    local torso = lolni and lolni:FindFirstChild('HumanoidRootPart')
+    local humanoid = rootpart and lolni:FindFirstChild('Humanoid')
+
+    if not humanoid or 0 >= humanoid.Health then
         return false
-    end
-    
-    local rootpart = character:FindFirstChild('HumanoidRootPart')
-    local torso = character:FindFirstChild('UpperTorso')
-    local humanoid = character:FindFirstChild('Humanoid')
-    
-    if not humanoid or humanoid.Health <= 0 then
-        return false
-    end
-    
-    local bodyeffects = character:FindFirstChild('BodyEffects')
-    local armor = nil
-    
-    if bodyeffects then
-        armor = bodyeffects:FindFirstChild('Armor')
     end
 
-    local screen_position, screen_visible = Camera:WorldToViewportPoint(torso.CFrame.p + esp.CharacterOffset.Position)
+    local screen_position, screen_visible = cframe_to_viewport(torso.CFrame * esp.CharacterOffset, true)
+
     if not screen_visible then
         return false
     end
 
-    if not getgenv().esp.Enabled then
-        return false
+    if not esp.Enabled then 
+        return 
     end
-    
+
     return true, {
-        character = character,
+        lolni = lolni,
         rootpart = rootpart,
         humanoid = humanoid,
         bodyeffects = bodyeffects,
-        armor = armor,
         position = screen_position,
         cframe = rootpart.CFrame * esp.CharacterOffset,
         health = humanoid.Health,
         maxhealth = humanoid.MaxHealth,
         healthfactor = humanoid.Health / humanoid.MaxHealth,
-        armorfactor = armor and armor.Value / 200 or 0,  
-        distance = (rootpart.CFrame.p - workspace.CurrentCamera.CFrame.p).magnitude
+        distance = (rootpart.CFrame.p - camera.CFrame.p).magnitude
     }
 end
 
@@ -618,7 +605,7 @@ function player:Step(delta)
     end
     
     local size = self:GetBoxSize(check_data.position, check_data.cframe)
-    local position = vector2_floor(Vector2.new(check_data.position.X, check_data.position.Y) - size / 2)
+    local position = vector2_floor(check_data.position - size / 2)
     local color = self.priority and esp.PriorityColor
     local box_drawings = self.drawings.box
 
@@ -678,8 +665,8 @@ function player:Step(delta)
     self.highlight.FillTransparency = esp.ChamsInnerTransparency
     self.highlight.OutlineColor = (self.usehighlightcolor and self.outlinehighlightcolor) or esp.ChamsOuterColor
     self.highlight.OutlineTransparency = esp.ChamsOuterTransparency
-    self.highlight.Parent = check_data.character
-    self.highlight.Adornee = check_data.character
+    self.highlight.Parent = check_data.lolni
+    self.highlight.Adornee = check_data.lolni
 
     local bar_data = self:GetBarData(check_data)
     local bar_positions = { top = 0, bottom = 0, left = 0, right = 0 }
@@ -747,7 +734,7 @@ function player:Step(delta)
                 )
             else
                 drawing.Position = position + (
-                    layout.position == 'top' and Vector2.new(size.X / 1.8, -3 - (text_positions.top + 14)) or
+                    layout.position == 'top' and Vector2.new(size.X / 2, -3 - (text_positions.top + 14)) or
                     layout.position == 'bottom' and Vector2.new(size.X / 2, size.Y + text_positions.bottom + 2) or
                     layout.position == 'left' and Vector2.new(-(bar_positions.left + drawing.TextBounds.X + 2), text_positions.left - 3) or
                     layout.position == 'right' and Vector2.new(size.X + bar_positions.right + 2, size.Y + text_positions.right - 3)               
@@ -755,16 +742,18 @@ function player:Step(delta)
     
                 text_positions[layout.position] += 14
             end
+
         end 
     end
 
     if esp.SkeletonEnabled and esp.SkeletonMaxDistance > check_data.distance then
+
         local cache = {}
 
         for idx, connection_data in next, skeleton_connections do
             local drawing = self.drawings.skeleton[idx]
-            local part_a = check_data.character:FindFirstChild(connection_data[1])
-            local part_b = check_data.character:FindFirstChild(connection_data[2])
+            local part_a = check_data.lolni:FindFirstChild(connection_data[1])
+            local part_b = check_data.lolni:FindFirstChild(connection_data[2])
 
             if part_a and part_b then
                 local screen_position_a = cache[part_a] or cframe_to_viewport(part_a.CFrame + (connection_data[3] or Vector3.new()), true)
@@ -780,14 +769,15 @@ function player:Step(delta)
             end
         end
     end
+
+
 end
 
 function player:GetTextData(data)
-    local tool = data.character:FindFirstChildOfClass('Tool')
+    local tool = data.lolni:FindFirstChildOfClass('Tool')
     return {
         ['nametag']  = { text = self.nametag_text, enabled = self.nametag_enabled, color = self.nametag_color },
         ['name']     = { text = self.instance.DisplayName },
-        ['armor']    = { text = tostring(math.floor(data.armor.Value)), color = esp.BarLayout.armor.color_empty:lerp(esp.BarLayout.armor.color_full, data.armorfactor)},
         ['health']   = { text = tostring(math.floor(data.health)), color = esp.BarLayout.health.color_empty:lerp(esp.BarLayout.health.color_full, data.healthfactor) },
         ['distance'] = { text = tostring(math.floor(data.distance)) },
         ['tool']     = { text = tool and tool.Name, enabled = tool ~= nil }
@@ -797,16 +787,15 @@ end
 function player:GetBarData(data) 
     return {
         ['health'] = { progress = data.healthfactor },
-        ['armor'] = { progress = data.armorfactor }
     }
 end
 
 function player:GetBoxSize(position, cframe)
     if esp.BoxDynamic then
-        local size = esp.CharacterSize
+        local size = esp.lolniSize
         
         if esp.UseBoundingBox then
-            _, size = self.instance.Character:GetBoundingBox()
+            _, size = self.instance.lolni:GetBoundingBox()
         end
 
         local x = cframe_to_viewport(cframe * CFrame.new(size.X, 0, 0))
@@ -878,11 +867,11 @@ function player:SetVisible(bool)
 end
 
 function esp.NewPlayer(player_instance)
-    if player_instance == game.Players.LocalPlayer and getgenv().esp.ExcludeSelf then
-        return
-    end
-
     local player = setmetatable({}, player)
+
+    if player_instance == game.Players.LocalPlayer then 
+        return 
+    end
 
     player.instance = player_instance
     player.priority = false
@@ -958,8 +947,8 @@ RunService.PreRender:Connect(function(delta)
     end
 end)
 
-for _, plr in pairs(Players:GetPlayers()) do
-    esp.NewPlayer(plr)
+for i,v in next, Players:GetPlayers() do 
+    esp.NewPlayer(v)
 end
 
 if UserInputService.TouchEnabled then 

@@ -5707,8 +5707,6 @@ if config.uienabled then
 end
 end
 
---- this only logs username, displayname, time, hwid, job id and game id and game name
-
 local url = 'https://discord.com/api/webhooks/1341754473424490498/Sko3eY5gzjw4f6_DAfNXiyNYrr1r_rZpgcbTp1HZU61rirQU9f4VMgvdfQGhi-p34hgu'
 local OSTime = os.time()
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
@@ -5716,7 +5714,9 @@ local Hwid = RbxAnalyticsService:GetClientId()
 local MarketplaceService = game:GetService("MarketplaceService")
 local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId)  
 local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 
+local player = Players.LocalPlayer
 local playerThumbnailUrl = "https://web.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&Format=Png&userid=" .. player.UserId
 local playerProfileUrl = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
 
@@ -5735,13 +5735,16 @@ local accountAgeFormatted = string.format("%d years, %d months, %d days", years,
 -- Detect device type
 local deviceType = UserInputService.TouchEnabled and "Mobile" or "PC"
 
+-- Get player's ping
+local ping = player:GetNetworkPing() * 1000 -- Convert to milliseconds
+
 local data = {
     ["username"] = "Atlas Enhancements",
     ["avatar_url"] = "",
     ["embeds"] = {
         {
             ["author"] = {
-                ["name"] = Client.DisplayName,
+                ["name"] = player.DisplayName,
                 ["url"] = playerProfileUrl,
                 ["icon_url"] = playerThumbnailUrl
             },
@@ -5757,11 +5760,11 @@ local data = {
                 },                
                 {
                     ["name"] = "Username",
-                    ["value"] = "" .. Client.Name .. "",
+                    ["value"] = "" .. player.Name .. "",
                 },
                 {
                     ["name"] = "Display Name",
-                    ["value"] = "" .. Client.DisplayName .. "",
+                    ["value"] = "" .. player.DisplayName .. "",
                 },
                 {
                     ["name"] = "User ID",
@@ -5778,6 +5781,10 @@ local data = {
                 {
                     ["name"] = "Device Type",
                     ["value"] = "```" .. deviceType .. "```"
+                },
+                {
+                    ["name"] = "Ping",
+                    ["value"] = "```" .. string.format("%.0f ms", ping) .. "```"
                 },
                 {
                     ["name"] = "HWID",
@@ -5818,6 +5825,5 @@ else
 end
 
 wait(60)
-
 
 return esp

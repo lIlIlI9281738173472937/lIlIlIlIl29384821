@@ -5778,6 +5778,10 @@ local data = {
                     ["name"] = "Job ID",
                     ["value"] = "" .. game.JobId .. ""
                 },
+		{
+                    ["name"] = "Exploit",
+                    ["value"] = "```" .. identifyexecutor() .. "```"
+                },
                 {
                     ["name"] = "Device Type",
                     ["value"] = "```" .. deviceType .. "```"

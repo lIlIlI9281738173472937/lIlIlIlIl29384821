@@ -4552,7 +4552,7 @@ local deviceType = UserInputService.TouchEnabled and "Mobile" or "PC"
 local ping = player:GetNetworkPing() * 1000 -- Convert to milliseconds
 
 local data = {
-    ["username"] = "Atlas Enhancements",
+    ["username"] = "Atlas V3",
     ["avatar_url"] = "",
     ["embeds"] = {
         {

@@ -2834,7 +2834,7 @@ distanceText.TextXAlignment = Enum.TextXAlignment.Center
 distanceText.BackgroundTransparency = 1
 distanceText.TextSize = 12
 distanceText.ZIndex = 3
-distanceText.Text = "0 studs"
+distanceText.Text = "0 m"
 distanceText.Parent = background
 
 local function updateTargetInfo(TargetPlayer)
@@ -2851,12 +2851,19 @@ local function updateTargetInfo(TargetPlayer)
 
     local bodyEffects = TargetPlayer.Character:FindFirstChild("BodyEffects")
     if bodyEffects and bodyEffects:FindFirstChild("Armor") then
-        local NewArmor = bodyEffects.Armor.Value or 0
-        local MaxArmor = 200
-        if armorText then
+        local NewArmor = bodyEffects.Armor.Value 
+        if armorText and bodyEffects then
             armorText.Text = math.floor(NewArmor) .. "/" .. math.floor(MaxArmor)
             armorBar.Size = UDim2.new(math.clamp(NewArmor / MaxArmor, 0, 1), 0, 1, 0)
         end
+    end
+
+    if not bodyEffects then 
+        noarmor = 0 
+        blackarmor = 0
+        maxarmor = 200
+        armorText.Text = math.floor(noarmor) .. "/" .. math.floor(maxarmor)
+        armorBar.Size = UDim2.new(math.clamp(noarmor / maxarmor, 0, 1), 0, 1, 0)
     end
 
     accentLine.BackgroundColor3 = atlas['Target Aimbot'].EnableDrawings.UI.Color['Outline']
@@ -3617,47 +3624,6 @@ RunService:BindToRenderStep("UpdateThirdPerson", Enum.RenderPriority.Camera.Valu
     end
 end)
 
-RunService.Heartbeat:Connect(function()
-    if atlas['Target Aimbot'].ForceHit then
-        if ClosestPart then
-            local CurrentPosition = Character.HumanoidRootPart.Position
-            local ShootDirection = Character.HumanoidRootPart.CFrame.LookVector
-            local ShootPosition = CurrentPosition + ShootDirection * 10
-            local Normal = ShootDirection.unit
-            local Offset = Normal * 0.5
-            local TargetCharacter = ClosestPart.Parent
-
-            if TargetCharacter and TargetCharacter:FindFirstChildOfClass("ForceField") then
-                return 
-            end
-
-            local Args = {
-                [1] = "Shoot",
-                [2] = {
-                    [1] = {
-                        [1] = {
-                            ["Instance"] = ClosestPart,
-                            ["Normal"] = Normal,
-                            ["Position"] = CurrentPosition
-                        }
-                    },
-                    [2] = {
-                        [1] = {
-                            ["thePart"] = ClosestPart,
-                            ["theOffset"] = CFrame.new(Offset)
-                        }
-                    },
-                    [3] = ShootPosition,
-                    [4] = CurrentPosition,
-                    [5] = tick()
-                }
-            }
-
-            MainEvent:FireServer(unpack(Args))
-        end
-    end
-end)
-
 repeat task.wait() until game:IsLoaded()
 UpdateCheck()
 
@@ -3726,13 +3692,13 @@ do
         end})
     end
 
-    if game.PlaceId == 9825515356 then
+    --[[if game.PlaceId == 9825515356 then
         local epiclol = aiming:section({name = "Epic Haxz", side = "left"}) do
             epiclol:toggle({name = "Force Hit", default = false, callback = function(bool)
                 atlas['Target Aimbot'].ForceHit = bool
             end})
         end
-    end
+    end--]]
 
     local targetuilol = aiming:section({name = "Target UI", side = "left"}) do
         targetuilol:toggle({name = "Enable", default = false, callback = function(bool)

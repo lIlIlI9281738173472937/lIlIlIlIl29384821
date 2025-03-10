@@ -975,16 +975,13 @@ local function getClosestPlayerToCursor()
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= Client and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local sigmapart = player.Character.HumanoidRootPart
-            local screenPos, onScreen = Camera:WorldToViewportPoint(sigmapart.Position)
-                            
-            local AimPart = atlas['Target Aimbot'].AimPart
-            local Part = player.Character:FindFirstChild(AimPart)
+            local humanoidRootPart = player.Character.HumanoidRootPart
+            local screenPos, onScreen = Camera:WorldToViewportPoint(humanoidRootPart.Position)
 
             if onScreen then
                 local distToMouse = (mousePos - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
 
-                if atlas["Target Aimbot"].Checks.Visible and not RayCastCheck(sigmapart, player.Character) then
+                if atlas["Target Aimbot"].Checks.Visible and not RayCastCheck(humanoidRootPart, player.Character) then
                     continue
                 end
 
@@ -1002,12 +999,11 @@ local function getClosestPlayerToCursor()
                 if distToMouse < closestDist then
                     closestPlr = player
                     closestDist = distToMouse
-                    ClosestPart = Part
                 end
             end
         end
     end
-    return closestPlr, ClosestPart
+    return closestPlr
 end
 
 local function CheckKnockedStatus()

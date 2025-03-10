@@ -4,6 +4,13 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5,
 })
 
+
+getgenv().config = {
+    uienabled = true,
+    uibind = "H",
+    autoshow = true
+}
+
 getgenv().atlas = { 
     ['Target Aimbot'] = {
         ['Enabled'] = false,
@@ -93,12 +100,18 @@ getgenv().atlas = {
             ['Rotation'] = {
                 ['Enabled'] = false,
                 ['Speed'] = 150,
-                ['Max'] = 340,
-                ['Style'] = "Bounce"
+                ['Style'] = "Linear"
             },
             ['Circle'] = {
                 ['Enabled'] = false,
                 ['Color'] = Color3.fromRGB(84, 101, 255),
+                ['Pulse'] = false,
+                ['PulseSpeed'] = 3,
+                ['Resize'] = {
+                    ['Enabled'] = false,
+                    ['Min'] = 10,
+                    ['Max'] = 20,
+                },
             },
             ['Resize'] = {
                 ['Enabled'] = false,
@@ -433,6 +446,8 @@ drawings.TargetDot.Filled = true
  
 getgenv().esp = {
     Enabled = false,
+    PulseESP = false,
+    PulseSpeed = 2,
     AutoStep = true,
     CharacterSize = Vector3.new(4, 5.75, 1.5),
     CharacterOffset = CFrame.new(0, -0.25, 0),
@@ -1093,7 +1108,7 @@ end)
 
 task.spawn(function()
     while true do
-        task.wait(0.00001) 
+        task.wait() 
         if atlas['Target Aimbot'].Enabled and atlas['Target Aimbot']['Look At'] and TargetPlayer and TargetPlayer.Character then
             local targetCharacter = TargetPlayer.Character
             local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
@@ -1116,13 +1131,13 @@ RunService.RenderStepped:Connect(function()
     if atlas['Target Aimbot'].View and TargetPlayer then
         Camera.CameraSubject = TargetPlayer.Character
     else
-        Camera.CameraSubject = Character.Humanoid
+        Camera.CameraSubject = Character:WaitForChild("Humanoid")
     end
 end)
 
 task.spawn(function()
     while true do
-        task.wait(0.01) 
+        task.wait() 
 
         local function playAnimationLoop(animNames, folders, condition)
             if not getgenv()[condition] or not getgenv().enableantiaim then return end
@@ -1958,6 +1973,7 @@ function sigmanigga(angle, radius)
 end
 
 local oldnigga = sigmasigmatext.Transparency 
+local oldnigga2 = drawings.FollowGunCircle.Transparency 
 
 RunService.RenderStepped:Connect(function()
     local currentTime = tick()
@@ -1986,26 +2002,28 @@ RunService.RenderStepped:Connect(function()
                 local text_x = text_1.TextBounds.X 
                 local toffset = atlas.Misc.Crosshair.Text.Offset
 
-                text_1.Position = position + Vector2.new(-text_x / toffset,length + (atlas.Misc.Crosshair.Resize.Enabled and atlas.Misc.Crosshair.Resize.Max or 0)
-                )
+                text_1.Position = position + Vector2.new(-text_x / toffset,length + (atlas.Misc.Crosshair.Resize.Enabled and atlas.Misc.Crosshair.Resize.Max or 0))
+                text_1.Color = atlas.Misc.Crosshair.Color
                 
                 if atlas.Misc.Crosshair.Rotation.Enabled then
-                    local spinAngle = -currentTime * atlas.Misc.Crosshair.Rotation.Speed % atlas.Misc.Crosshair.Rotation.Max
+                    local spinAngle = -currentTime * atlas.Misc.Crosshair.Rotation.Speed % 360
                     angle = angle + TweenService:GetValue(spinAngle / 360, atlas.Misc.Crosshair.Rotation.Style, Enum.EasingDirection.InOut) * 360
                 end
 
                 if atlas.Misc.Crosshair.Resize.Enabled then
                     local resizeLength = math.sin(math.rad(tick() * atlas.Misc.Crosshair.Resize.Speed % 180))
-                    length = atlas.Misc.Crosshair.Resize.Min + resizeLength * atlas.Misc.Crosshair.Resize.Max
+                    length = atlas.Misc.Crosshair.Resize.Min + resizeLength * 60
                 end
+
 
                 if atlas.Misc.Crosshair.Gun.Enabled then
                     local mainbra = Character:FindFirstChildWhichIsA("Tool")
                     if mainbra then
                         local GunLOL = mainbra
                         local handle = GunLOL:FindFirstChild("Handle")
+                        local ammo = GunLOL:FindFirstChild("Ammo")
                 
-                        if handle then
+                        if handle and ammo then
                             local forwardDirection = handle.CFrame.LookVector
                             local toolEndPosition = handle.Position + (forwardDirection * handle.Size.Z / atlas.Misc.Crosshair.Gun.Offset)
                 
@@ -2022,8 +2040,20 @@ RunService.RenderStepped:Connect(function()
                     drawings.FollowGunCircle.Visible = true 
                     drawings.FollowGunCircle.Position = position 
                     drawings.FollowGunCircle.Radius = atlas.Misc.Crosshair.Size
+                    drawings.FollowGunCircle.Color = atlas.Misc.Crosshair.Color
                 else 
                     drawings.FollowGunCircle.Visible = false 
+                end
+                
+                if atlas.Misc.Crosshair.Circle.Enabled and atlas.Misc.Crosshair.Enabled and atlas.Misc.Crosshair.Circle.Pulse then
+                    drawings.FollowGunCircle.Transparency = math.abs(math.sin(currentTime * atlas.Misc.Crosshair.Circle.PulseSpeed))
+                else
+                    drawings.FollowGunCircle.Transparency = oldnigga2
+                end
+
+                if atlas.Misc.Crosshair.Circle.Enabled and atlas.Misc.Crosshair.Enabled and atlas.Misc.Crosshair.Circle.Resize.Enabled then
+                    local resizeLength = math.sin(math.rad(tick() * atlas.Misc.Crosshair.Resize.Speed % 180))
+                    drawings.FollowGunCircle.Radius = atlas.Misc.Crosshair.Circle.Resize.Min + resizeLength * 60
                 end
 
                 if atlas.Misc.Crosshair.Attach then
@@ -2393,7 +2423,7 @@ end
 
 task.spawn(function()
     while true do
-        task.wait(0.001) 
+        task.wait() 
         CframeDesyncHelloSkids()
     end
 end)
@@ -2496,7 +2526,7 @@ end)
 
 spawn(function()
     while true do
-        task.wait(0.001) 
+        task.wait() 
         local vs = atlas.Misc['Anti Lock']['Velocity Spoofer']
         if vs.CripWalk.Enabled then
             local Value = vs.CripWalk.Tick
@@ -2808,32 +2838,26 @@ distanceText.Text = "0 studs"
 distanceText.Parent = background
 
 local function updateTargetInfo(TargetPlayer)
-    if not TargetPlayer or not TargetPlayer.Character then
-        return
-    end
-
     local humanoid = TargetPlayer.Character:FindFirstChild("Humanoid")
-    if not humanoid then
-        return
-    end
     
     playerAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. TargetPlayer.UserId .. "&w=420&h=420"
     playerName.Text = TargetPlayer.DisplayName .. " (@" .. TargetPlayer.Name .. ")"
     
     local health = humanoid.Health
     local maxHealth = humanoid.MaxHealth
+
     healthBar.Size = UDim2.new(math.clamp(health / maxHealth, 0, 1), 0, 1, 0)
     healthText.Text = math.floor(health) .. "/" .. math.floor(maxHealth)
-    
-    healthText.Position = UDim2.new(0.5, -healthText.TextBounds.X/2, 0, 0)
-    healthText.Size = UDim2.new(0, healthText.TextBounds.X, 0, healthText.TextBounds.Y)  
 
-    local armor = TargetPlayer:FindFirstChild("leaderstats") and TargetPlayer.leaderstats:FindFirstChild("Armor") and TargetPlayer.leaderstats.Armor.Value 
-    armorBar.Size = UDim2.new(math.clamp(bodyEffects.Armor.Value / 100, 0, 1), 0, 1, 0)
-    armorText.Text = math.floor(armor) .. "/100"
-
-    armorText.Position = UDim2.new(0.5, -armorText.TextBounds.X/2, 0, 0)  
-    armorText.Size = UDim2.new(0, armorText.TextBounds.X, 0, armorText.TextBounds.Y)  
+    local bodyEffects = TargetPlayer.Character:FindFirstChild("BodyEffects")
+    if bodyEffects and bodyEffects:FindFirstChild("Armor") then
+        local NewArmor = bodyEffects.Armor.Value or 0
+        local MaxArmor = 200
+        if armorText then
+            armorText.Text = math.floor(NewArmor) .. "/" .. math.floor(MaxArmor)
+            armorBar.Size = UDim2.new(math.clamp(NewArmor / MaxArmor, 0, 1), 0, 1, 0)
+        end
+    end
 
     accentLine.BackgroundColor3 = atlas['Target Aimbot'].EnableDrawings.UI.Color['Outline']
     outline.BackgroundColor3 = atlas['Target Aimbot'].EnableDrawings.UI.Color['Outline']
@@ -2864,7 +2888,7 @@ RunService.RenderStepped:Connect(function()
         updateTargetInfo(TargetPlayer)
         showUI()
     else 
-        hideUI()
+       hideUI()
     end
 end) 
 
@@ -2948,14 +2972,15 @@ end)
 
 task.spawn(function()
     while true do
-        task.wait(0.001) 
+        task.wait() 
         if TargetPlayer and TargetPlayer.Character then
             local sex = TargetPlayer.Character
             local aimbotSettings = atlas['Target Aimbot']
+            local sex2 = sex:WaitForChild("HumanoidRootPart")
         
-            if humanoid and aimbotSettings.Enabled and aimbotSettings['Use Camera'].Enabled then
+            if sex2 and aimbotSettings.Enabled and aimbotSettings['Use Camera'].Enabled then
                 local aimPosition = sex:FindFirstChild(aimbotSettings.AimPart) and sex[aimbotSettings.AimPart].Position
-                local velocity = humanoidRootPart and humanoidRootPart.Velocity or Vector3.zero
+                local velocity = sex2 and sex2.Velocity or Vector3.zero
                 local predictedPosition = aimPosition and (aimPosition + (velocity * aimbotSettings.Prediction.Amount))
 
                 if aimPosition and predictedPosition then
@@ -2971,8 +2996,6 @@ RunService:BindToRenderStep("UpdateSlow", Enum.RenderPriority.Camera.Value, func
     if not (atlas.Misc['Anti Slow']) then
         return
     end
-
-    if not Character then return end
     
     local bodyEffects = Character:FindFirstChild("BodyEffects")
     if not bodyEffects then return end
@@ -2983,9 +3006,15 @@ RunService:BindToRenderStep("UpdateSlow", Enum.RenderPriority.Camera.Value, func
         local reduceWalk = movement:FindFirstChild('ReduceWalk')
         local noWalkSpeed = movement:FindFirstChild('NoWalkSpeed')
         
-        if noJumping then noJumping:Destroy() end
-        if reduceWalk then reduceWalk:Destroy() end
-        if noWalkSpeed then noWalkSpeed:Destroy() end
+        if noJumping then 
+            noJumping:Destroy() 
+        end
+        if reduceWalk then 
+            reduceWalk:Destroy() 
+        end
+        if noWalkSpeed then 
+            noWalkSpeed:Destroy() 
+        end
     end
 
     for _, effect in ipairs(bodyEffects:GetChildren()) do
@@ -3002,7 +3031,7 @@ end)
 
 task.spawn(function()
     while true do
-        task.wait(0.001) 
+        task.wait() 
         if atlas.Misc['No Jumpcool Down'] == true then
             Character.Humanoid.UseJumpPower = false
         else 
@@ -3089,10 +3118,8 @@ RunService:BindToRenderStep("UpdateAnimationNone", Enum.RenderPriority.Camera.Va
     if not Character then return end
 
     Assets.OtherStored.HumanoidCache = humanoid
-    if not Assets.OtherStored.HumanoidCache then return end  
 
     Assets.OtherStored.HumanoidAnimator = Assets.OtherStored.HumanoidCache:FindFirstChildOfClass("Animator")
-    if not Assets.OtherStored.HumanoidAnimator then return end 
 
     if atlas.Animations.Enabled then
         if atlas.Animations.DisableInGame then 
@@ -3141,7 +3168,6 @@ RunService:BindToRenderStep("UpdateAA", Enum.RenderPriority.Camera.Value, functi
     end
 end)
 
-
 local ArmorTable = {
     "[High-Medium Armor] - $2440",
     "[High-Medium Armor] - $2163",
@@ -3174,7 +3200,9 @@ local function AutoBuyArmor()
 
                     if armorItem and armorItem:FindFirstChild("Head") and armorItem:FindFirstChild("ClickDetector") then
                         humanoidRootPart.CFrame = armorItem.Head.CFrame
+                        task.wait(0.01)
                         fireclickdetector(armorItem.ClickDetector)
+                        task.wait(0.01)
                         humanoidRootPart.CFrame = OldPosition
                         break
                     end
@@ -4071,11 +4099,8 @@ do
                 crosshairlol:dropdown({name = "Rotation Style", items = {"Linear", "Sine", "Back", "Bounce", "Elastic", "Quad", "Cubic", "Quart", "Quint"}, default = atlas.Misc.Crosshair.Rotation.Style, multi = false, callback = function(bool)
                     atlas.Misc.Crosshair.Rotation.Style = bool
                 end})
-                crosshairlol:slider({name = "Rotation Speed", min = 0, max = 290, default = atlas.Misc.Crosshair.Rotation.Speed, interval = 1, callback = function(bool)
+                crosshairlol:slider({name = "Rotation Speed", min = 0, max = 200, default = atlas.Misc.Crosshair.Rotation.Speed, interval = 1, callback = function(bool)
                     atlas.Misc.Crosshair.Rotation.Speed = bool
-                end})
-                crosshairlol:slider({name = "Rotation Max Speed", min = 0, max = 300, default = atlas.Misc.Crosshair.Rotation.Max, interval = 1, callback = function(bool)
-                    atlas.Misc.Crosshair.Rotation.Max = bool
                 end})
                 crosshairlol:toggle({name = "Resize", default = false, callback = function(bool)
                     atlas.Misc.Crosshair.Resize.Enabled = bool
@@ -4109,6 +4134,15 @@ do
                 end})
                 crosshairlol:toggle({name = "Show Crosshair Circle", default = false, callback = function(bool)
                     atlas.Misc.Crosshair.Circle.Enabled = bool
+                end})
+                crosshairlol:toggle({name = "Crosshair Circle Pulse", default = false, callback = function(bool)
+                    atlas.Misc.Crosshair.Circle.Pulse = bool
+                end})
+                crosshairlol:toggle({name = "Crosshair Circle Resize", default = false, callback = function(bool)
+                    atlas.Misc.Crosshair.Circle.Resize.Enabled = bool
+                end})
+                crosshairlol:slider({name = "Text Pulse Speed", min = 0, max = 10, default = atlas.Misc.Crosshair.Text.PulseSpeed, interval = 0.5, callback = function(bool)
+                    atlas.Misc.Crosshair.Text.PulseSpeed = bool
                 end})
                 crosshairlol:toggle({name = "Attach To Target", default = false, callback = function(bool)
                     atlas.Misc.Crosshair.Attach = bool
@@ -4182,7 +4216,7 @@ do
             end
             workspace.FallenPartsDestroyHeight = -500 
             task.spawn(function()
-                while task.wait(0.001) do  
+                while task.wait() do  
                     if enableantivoids and Character and humanoidRootPart and humanoidRootPart.Position.Y < -450 then
                         humanoidRootPart.CFrame = oldPosition
                     end
@@ -4402,7 +4436,7 @@ do
                 local ammoAmount = math.min(atlas.Misc.AutoBuy.AmmoAmount, 100) 
                 for i = 1, ammoAmount do
                     TeleportBuy(ToolAmmo(atlas.Misc.AutoBuy.Gun))
-                    task.wait(0.1)
+                    task.wait()
                 end
             end) 
         end})
@@ -4642,5 +4676,3 @@ else
 end
 
 wait(60)
-
-return esp
